@@ -1,7 +1,19 @@
 # Instructions for coding agents
 
 ## Project context
-Read `docs/project/charter.md`, `roadmap.md`, `risk-register.md` and `glossary.md` before work. Read applicable approved product specifications and ADRs when present. Stage 00 is approved; Stage 01 is next. Do not implement application code until the owner authorizes implementation tasks.
+Repository documentation is the primary source of project context. Before work, read the [charter](docs/project/charter.md), [roadmap](docs/project/roadmap.md), [risk register](docs/project/risk-register.md) and [glossary](docs/project/glossary.md). Read applicable approved product specifications and ADRs when present.
+
+- Stage 00 — Project Initialization is approved and complete.
+- Stage 01 — Product Discovery is in progress.
+- Stage 02 — System Design is pending.
+- IP-000 — Project Context Initialization is accepted.
+- Application implementation has not started. Do not implement application code until the owner authorizes implementation tasks.
+
+## Codex CLI
+- Use Codex CLI as the current development assistant interface.
+- Use the read-only sandbox for analysis tasks and the workspace-write sandbox for approved editing tasks.
+- Obtain human approval before expanding task scope and human review before committing or merging changes.
+- Never push automatically to remote repositories.
 
 ## Working rules
 - Follow the current issue, acceptance criteria and approved scope. Ask about contradictions or missing requirements; do not silently invent product behavior.
@@ -14,4 +26,4 @@ Read `docs/project/charter.md`, `roadmap.md`, `risk-register.md` and `glossary.m
 - Do not assume dependency versions or verification commands exist before setup. Update docs with behavioral changes.
 
 ## Task completion report
-Summarize changes, affected files, requirement IDs, tests run and results, remaining risks and suggested next step. Follow `docs/development/workflow.md`.
+Summarize changes, affected files, requirement IDs, tests run and results, remaining risks and suggested next step. Follow the [development workflow](docs/development/workflow.md).

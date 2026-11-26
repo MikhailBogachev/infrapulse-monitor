@@ -23,10 +23,16 @@ Backend developers, DevOps engineers, independent developers and small IT teams 
 
 Out of scope: Kubernetes, distributed agents, billing, microservices, AI, native mobile apps and full server metrics collection.
 
-## Architecture baseline
+## Approved architecture and technologies
 Modular monolith with separate API, scheduler and worker processes. PostgreSQL is the source of truth. Separate check and notification queues. Prefer simple designs, explicit boundaries, idempotency, bounded retries, API-first contracts and security by design.
 
-Proposed stack: Python 3.13, FastAPI, SQLAlchemy 2, Psycopg 3, Alembic, Pydantic 2, RabbitMQ, Celery, Celery Beat, Redis, HTTPX, React, TypeScript, Vite, Tailwind CSS, shadcn/ui, Recharts, Nginx, Docker Compose, uv, pytest, Testcontainers, Ruff, mypy, structlog, Prometheus, Grafana and GitHub Actions. Exact versions and worker concurrency model require validation at later gates.
+The approved technology baseline includes FastAPI, PostgreSQL, RabbitMQ, Celery, Redis, React, Docker and Docker Compose.
+
+## Proposed technology candidates
+Python 3.13, SQLAlchemy 2, Psycopg 3, Alembic, Pydantic 2, Celery Beat, HTTPX, TypeScript, Vite, Tailwind CSS, shadcn/ui, Recharts, Nginx, uv, pytest, Testcontainers, Ruff, mypy, structlog and GitHub Actions remain candidates. Version numbers in this list describe proposals.
+
+## Pending architectural decisions
+Dependency versions, database schema, worker concurrency and execution model, partitioning, use of a transactional outbox and delivery guarantees remain open. See the [decision register](decision-register.md) for other pending decisions and Product Discovery topics.
 
 ## Success targets (not measured results)
 - 1,000 active monitors at 60-second intervals; approximately 16.7 checks/s on average.
@@ -37,7 +43,9 @@ Proposed stack: Python 3.13, FastAPI, SQLAlchemy 2, Psycopg 3, Alembic, Pydantic
 - Public demo uses controlled targets only; no arbitrary network probing.
 
 ## Governance
-The owner approves scope, reviews changes and controls the repository. ChatGPT assists with requirements and design; Codex assists with implementation. Human review remains mandatory. English code, UI and repository documentation; Russian project discussions. GitHub Flow, issues, pull requests, ADRs and Conventional Commits. MIT license intended; actual license file to be added by owner at setup.
+The owner approves scope, reviews changes and controls the repository. ChatGPT assists with requirements and design. Codex CLI is the current development assistant interface and uses repository documentation as the primary source of project context. Use the read-only sandbox for analysis and the workspace-write sandbox for approved edits. Obtain human approval before expanding task scope and human review before committing or merging. Automatic pushes to remote repositories are prohibited. See the [development workflow](../development/workflow.md).
+
+Code, UI and repository documentation are in English. Project discussions are in Russian. The project follows GitHub Flow and uses issues, pull requests, ADRs and Conventional Commits. MIT is the intended license. The owner will add the license file during setup.
 
 ## Naming
 InfraPulse is an approved working name, not a cleared trademark. Similar names have been reported in the same industry. Repository slug is infrapulse-monitor; account-level availability and legal clearance remain unverified. Reassess before public branding or commercial release.
