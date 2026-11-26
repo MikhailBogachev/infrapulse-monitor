@@ -23,6 +23,10 @@ ID: IP-DOC-004 | Version: 1.0 | Status: Active
 | Idempotency | Repeated processing of the same logical operation does not duplicate its business effects. |
 | Retry | Bounded reattempt after an eligible confirmed failure. |
 | Outbox | Durable database record of events awaiting publication. |
+| Execution lease | Expiring database claim used to find work for recovery. The worker execution lock owns actual probe exclusion. |
+| Execution guard | Shared host-local lock held by the probe process until its socket is closed. A separate start lock serializes lifecycle changes with outbound starts. |
+| Publisher confirm | RabbitMQ acknowledgement of a publication. Route success is verified separately. |
+| UNKNOWN delivery | Terminal automated disposition when provider acceptance cannot be determined safely. |
 | SSRF | Server-side request forgery: abuse of server-originated requests to reach unintended destinations. |
 | RBAC | Role-based access control. |
 | Retention | Policy for expiring historical data. |

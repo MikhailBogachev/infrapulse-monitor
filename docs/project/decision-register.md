@@ -31,29 +31,38 @@ Under D-009, repository documentation is the primary source of project context. 
 
 **Rationale.** Selecting a platform gives reviewers a single required source of CI execution evidence and aligns with the GitHub Flow established in [D-007](#d-007).
 
-**Scope.** Continuous integration, automated quality checks and tests within approved MVP scope, and observable GitHub Actions execution. Other technology candidates keep their recorded dispositions.
+**Scope.** Continuous integration, automated quality checks and tests within approved MVP scope, and observable GitHub Actions execution. The current technology dispositions are in the [approved stack](../architecture/technology-stack.md).
 
 **Deferred implementation details.** Workflow structure, job decomposition, triggers, runner operating systems and architectures, dependency caching, matrices, branch protection, required check names, artifact retention, deployment workflows, release automation, and versions of actions and quality or test tools remain unapproved. The detailed Stage 07 measurement protocol is deferred under [Q-11](../product/prd.md#q-11).
 
 **Related decisions and requirements.** [D-005](#d-005), [D-007](#d-007), [F-012](../product/prd.md#f-012), [NFR-015](../product/srs.md#nfr-015), [AC-057](../product/acceptance-criteria.md#ac-057).
 
-## Proposed technology candidates
+## Approved Stage 02 Architecture Decisions
 
-The [charter's candidate list](charter.md#proposed-technology-candidates) records technologies proposed for evaluation at later stage gates.
+The project owner approved AD-001–AD-012 and the [technology stack](../architecture/technology-stack.md) in the IP-005 brief. These supersede the corresponding candidate and pending architecture entries in the Stage 00 charter. In IP-005 Final Acceptance the owner approved the architecture documentation and AD-013–AD-016, completing Stage 02. Exact dependency versions and mandatory technical verification are deferred to [Stage 04](../architecture/system-architecture.md#verification-gates).
 
-## Pending architectural decisions
-
-- Dependency versions.
-- Worker concurrency and asynchronous execution strategy.
-- Database schema, partitioning and retention implementation.
-- Use of a transactional outbox and delivery guarantees.
-- API contracts and deployment provider.
-
-Resolve these through subsequent stage gates and ADRs.
+| ID | Approved decision | Record |
+|---|---|---|
+| <a id="ad-001"></a> AD-001 | Modular Monolith | [ADR-001](../architecture/adr/adr-001-modular-runtime.md) |
+| <a id="ad-002"></a> AD-002 | Execution and Concurrency Model | [ADR-001](../architecture/adr/adr-001-modular-runtime.md) |
+| <a id="ad-003"></a> AD-003 | Database Architecture | [ADR-002](../architecture/adr/adr-002-postgresql-history.md) |
+| <a id="ad-004"></a> AD-004 | REST API Architecture | [ADR-004](../architecture/adr/adr-004-http-identity-and-spa.md) |
+| <a id="ad-005"></a> AD-005 | Authentication and Workspace Isolation | [ADR-004](../architecture/adr/adr-004-http-identity-and-spa.md) |
+| <a id="ad-006"></a> AD-006 | Monitoring Engine | [ADR-003](../architecture/adr/adr-003-background-processing.md) |
+| <a id="ad-007"></a> AD-007 | Reliability and Message Processing | [ADR-003](../architecture/adr/adr-003-background-processing.md) |
+| <a id="ad-008"></a> AD-008 | Incident Engine | [ADR-003](../architecture/adr/adr-003-background-processing.md) |
+| <a id="ad-009"></a> AD-009 | Notification Engine | [ADR-003](../architecture/adr/adr-003-background-processing.md) |
+| <a id="ad-010"></a> AD-010 | Security Architecture | [ADR-005](../architecture/adr/adr-005-outbound-and-deployment.md) |
+| <a id="ad-011"></a> AD-011 | Frontend Architecture | [ADR-004](../architecture/adr/adr-004-http-identity-and-spa.md) |
+| <a id="ad-012"></a> AD-012 | Deployment and Infrastructure | [ADR-005](../architecture/adr/adr-005-outbound-and-deployment.md) |
+| <a id="ad-013"></a> AD-013 | Linux Deployment Environment · APPROVED. Production uses Linux, Docker Engine and Docker Compose. Local development uses macOS and Docker Desktop. Run production-specific network verification on Linux. | [ADR-005](../architecture/adr/adr-005-outbound-and-deployment.md#ad-013) |
+| <a id="ad-014"></a> AD-014 | Check Worker Execution Guard · APPROVED. MVP uses one check-worker container with multiple prefork processes. A subsequent execution requires proof that the previous execution has ended. Lease expiry alone cannot authorize it. The mandatory Stage 04 execution guard spike remains pending. | [ADR-005](../architecture/adr/adr-005-outbound-and-deployment.md#ad-014) |
+| <a id="ad-015"></a> AD-015 | Host-managed Network Egress · APPROVED. Combine application-level destination verification with Linux host-managed outbound restrictions. The mandatory Stage 04 IPv4/IPv6 egress spike remains pending. | [ADR-005](../architecture/adr/adr-005-outbound-and-deployment.md#ad-015) |
+| <a id="ad-016"></a> AD-016 | Scheduler & Control Worker · APPROVED. Run Celery Beat and the control worker as separate processes in one scheduler container. Supervise lifecycle and failures, support graceful shutdown and enforce a single Beat instance. | [ADR-005](../architecture/adr/adr-005-outbound-and-deployment.md#ad-016) |
 
 ## Approved Product Decisions
 
-IP-002 is approved. The product owner approved the following scope decisions for IP-003. The approved IP-004 decisions below resolve the product parameters and preserve the approved feature boundaries.
+IP-002 is approved. The product owner approved PD-001–PD-015 for IP-003. The approved IP-004 decisions below resolve the product parameters. IP-005 Final Acceptance adds PD-016 within the approved feature boundaries.
 
 | ID | Title | Release | Status | Approved scope |
 |---|---|---|---|---|
@@ -72,10 +81,13 @@ IP-002 is approved. The product owner approved the following scope decisions for
 | <a id="pd-013"></a> PD-013 | Dark Theme Only | MVP; inherited later | APPROVED | All UI uses Dark Only with contrast, keyboard access, visible focus and status distinctions beyond color. Light and system themes, theme settings, pickers and automatic theme switching are outside scope. |
 | <a id="pd-014"></a> PD-014 | Responsive Interface | MVP; inherited later | APPROVED | Use a desktop-first responsive web interface, preserving principal navigation, dashboard, monitor, incident and account journeys on mobile. Stage 03 defines breakpoints and layouts. Native mobile apps are outside scope. |
 | <a id="pd-015"></a> PD-015 | English Language | MVP; inherited later | APPROVED | UI, repository documentation, source identifiers, technical messages and source comments use English. Discussions, Codex CLI tasks and Codex reports use Russian. Localization and multilingual UI are outside scope. |
+| <a id="pd-016"></a> PD-016 | Changing Target of a Paused Monitor | MVP | APPROVED | Changing the checked URL of a PAUSED monitor keeps it PAUSED, closes any open incident as Configuration Changed, resets consecutive result counters and advances the configuration version. The edit starts no automatic check. A later Resume sets PENDING. This refines [Q-04](../product/prd.md#q-04). |
+
+Approval source for [PD-016](#pd-016): explicit project-owner approval in IP-005 Final Acceptance.
 
 ## IP-004 Product Decisions
 
-Approval source: explicit project-owner approval in the IP-004 task. The linked PRD entries record the approved behavior and deferred design details. The product documentation is ready for final owner acceptance.
+Approval source: explicit project-owner approval in the IP-004 task. The linked PRD entries record the approved behavior and deferred design details. The project owner confirmed final Stage 01 acceptance in the IP-005 brief.
 
 | ID | Decision | Release | Status | Scope sources |
 |---|---|---|---|---|

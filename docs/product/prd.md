@@ -46,7 +46,7 @@ Deliver a usable monitoring-to-recovery journey in MVP, extend monitoring and co
 
 ## Approved Product Decisions
 
-The [Decision Register](../project/decision-register.md#approved-product-decisions) defines PD-001 through PD-015. Approval applies to product decisions and their explicit scope. Q-01–Q-15 finalize the approved parameters. The derived specification is ready for final owner acceptance. The [matrix](requirements-traceability-matrix.md) maps decisions to features and verification.
+The [Decision Register](../project/decision-register.md#approved-product-decisions) defines PD-001 through PD-016. Q-01–Q-15 finalize the approved Stage 01 parameters. [PD-016](../project/decision-register.md#pd-016) refines monitor lifecycle behavior for a paused URL edit and was approved in IP-005 Final Acceptance. The [matrix](requirements-traceability-matrix.md) maps decisions to features and verification.
 
 ## Feature Catalog
 
@@ -177,9 +177,9 @@ The owner approved Q-01–Q-15 in IP-004. The [Decision Register](../project/dec
 <a id="q-04"></a>
 ### Q-04 — Monitor lifecycle and incidents
 
-**APPROVED.** States are PENDING, UP, DOWN and PAUSED. Creation starts in PENDING and the first qualifying success of a new monitor sets UP. Configurable consecutive failure and recovery thresholds default to 3 and 2. Crossing the failure threshold sets DOWN and opens an incident. Confirmed recovery sets UP and closes it. Pause sets PAUSED and preserves an open incident. Resume sets PENDING and a retained incident closes only after confirmed recovery. Deletion closes an open incident as Monitor Deleted. Changing the checked address sets PENDING and closes the previous incident for configuration change. Pause and configuration edits reset streaks. Internal faults do not establish unavailability. Stale results cannot alter live state. A scheduled check cannot start while PAUSED, including one queued before pause.
+**APPROVED.** States are PENDING, UP, DOWN and PAUSED. Creation starts in PENDING and the first qualifying success of a new monitor sets UP. Configurable consecutive failure and recovery thresholds default to 3 and 2. Crossing the failure threshold sets DOWN and opens an incident. Confirmed recovery sets UP and closes it. Pause sets PAUSED and preserves an open incident. Resume sets PENDING and a retained incident closes only after confirmed recovery. Deletion closes an open incident as Monitor Deleted. Changing the checked address of an active monitor sets PENDING and closes any open incident as Configuration Changed. Under [PD-016](../project/decision-register.md#pd-016), changing the checked URL of a PAUSED monitor keeps it PAUSED, closes any open incident as Configuration Changed, resets both result streaks and advances the configuration version. The edit starts no automatic check. A later Resume sets PENDING. Pause and configuration edits reset streaks. Internal faults do not establish unavailability. Stale results cannot alter live state. A scheduled check cannot start while PAUSED, including one queued before pause.
 
-**Deferred.** Stage 02 defines ordering, concurrency and stale-result handling. Validate any additional lifecycle rules or threshold bounds with the owner before making them normative.
+**Design.** The approved [incident engine](../architecture/backend-design.md#incident-engine) defines ordering, concurrency and stale-result handling. Additional lifecycle rules or threshold bounds require owner approval before becoming normative.
 
 **Related requirements.** [FR-014](srs.md#fr-014), [FR-015](srs.md#fr-015), [FR-031](srs.md#fr-031), [FR-032](srs.md#fr-032), [FR-033](srs.md#fr-033), [FR-034](srs.md#fr-034), [FR-035](srs.md#fr-035), [FR-036](srs.md#fr-036), [FR-037](srs.md#fr-037), [FR-011](srs.md#fr-011)
 

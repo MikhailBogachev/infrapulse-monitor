@@ -6,11 +6,11 @@ All risks initially open. H = high, M = medium, L = low. Owner reviews at each s
 | ID | Risk | Likelihood / impact | Mitigation / verification | Responsible role |
 |---|---|---|---|---|
 | R-01 | Scope creep | H/H | Release boundaries; change approval | Product owner |
-| R-02 | SSRF / network abuse through internal allowlisting, supported outbound paths or additional monitor types | H/H | Use restrictive defaults, deny precedence, operator authorization, effective destination verification and bounded Beta target interaction. Verify with controlled fixtures across address families and monitor types. | Backend |
-| R-03 | Duplicate tasks or manual and scheduled overlap | H/H | Evaluate stable logical identity and uniqueness. Verify concurrent triggers and replay cannot duplicate results, transitions or notification triggers. | Backend |
-| R-04 | Lost tasks | M/H | Define ack and publish semantics; evaluate transactional outbox; broker failure tests | Backend |
+| R-02 | SSRF / network abuse through internal allowlisting, supported outbound paths or additional monitor types | H/H | Use restrictive defaults, deny precedence, operator authorization, effective destination verification and bounded Beta target interaction. Gate monitoring implementation on [pinned HTTPX and Linux egress evidence](../architecture/security-design.md#mandatory-outbound-spike) across address families. | Backend |
+| R-03 | Duplicate tasks or manual and scheduled overlap | H/H | Verify stable logical identity and actual non-overlap even after lease expiry or DB disconnect in the [execution guard spike](../architecture/backend-design.md#execution-guard-spike). | Backend |
+| R-04 | Lost tasks | M/H | Verify confirms, mandatory routing, durable reconciliation and late acknowledgement with controlled broker failure. | Backend |
 | R-05 | False incidents | H/M | Failure/recovery thresholds; ordered state transitions | Backend |
-| R-06 | History growth | H/H | Retention, indexes, capacity tests; evaluate partitioning | Backend |
+| R-06 | History growth | H/H | Verify six-hour partitions, ledger/index overhead, physical cleanup and representative query plans. | Backend |
 | R-07 | Provider outage | H/M | Timeouts, bounded retries for eligible confirmed failures, no blind resend after an indeterminate outcome, rate limits and failure visibility | Backend |
 | R-08 | AI-generated defects | H/H | Small PRs, human review, tests, no unverified claims | Owner |
 | R-09 | Frontend effort | H/M | Reusable components and limited MVP screens | Frontend |
