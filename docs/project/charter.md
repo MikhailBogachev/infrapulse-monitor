@@ -17,7 +17,7 @@ Backend developers, DevOps engineers, independent developers and small engineeri
 ## Product scope
 | Release | Requirements |
 |---|---|
-| v0.1.0 MVP | F-001 Authentication (JWT and refresh tokens); F-002 workspace isolation; F-003 monitor CRUD; F-004 HTTP/HTTPS checks; F-005 scheduler; F-006 RabbitMQ/Celery tasks; F-007 check history; F-008 incidents; F-009 Telegram notifications; F-010 dashboard; F-011 SSRF protection and rate limiting; F-012 Docker Compose, migrations and CI; F-029 Run Check Now; F-033 basic uptime and latency metrics |
+| v0.1.0 MVP | F-001 Authentication (JWT and refresh tokens); F-002 workspace isolation; F-003 monitor CRUD; F-004 HTTP/HTTPS checks; F-005 scheduler; F-006 RabbitMQ/Celery tasks; F-007 check history; F-008 incidents; F-009 Telegram notifications; F-010 dashboard; F-011 SSRF protection and rate limiting; F-012 Docker Compose, migrations and GitHub Actions CI; F-029 Run Check Now; F-033 basic uptime and latency metrics |
 | v0.5.0 Beta | F-013 TCP checks; F-014 SSL expiry; F-015 email; F-016 webhooks; F-017 RBAC; F-018 uptime and latency analytics; F-019 public status pages; F-020 maintenance windows; F-021 API keys; F-030 HTTP keyword monitoring; F-031 JSON assertion monitoring; F-032 workspace invitations and membership |
 | v1.0.0 Release | F-022 audit log; F-023 Prometheus/Grafana; F-024 report export; F-025 interactive isolated demo mode; F-026 integration and load testing; F-027 public demo deployment; F-028 documentation |
 
@@ -32,10 +32,10 @@ Out of scope are Kubernetes, distributed agents, billing, microservices, AI, nat
 ## Approved architecture and technologies
 Modular monolith with separate API, scheduler and worker processes. PostgreSQL is the source of truth. Separate check and notification queues. Prefer simple designs, explicit boundaries, idempotency, bounded retries, API-first contracts and security by design.
 
-The approved technology baseline includes FastAPI, PostgreSQL, RabbitMQ, Celery, Redis, React, Docker and Docker Compose.
+The approved technology baseline includes FastAPI, PostgreSQL, RabbitMQ, Celery, Redis, React, Docker and Docker Compose. [D-010](decision-register.md#d-010) approves GitHub Actions as the required CI platform for MVP v0.1.0.
 
 ## Proposed technology candidates
-Python 3.13, SQLAlchemy 2, Psycopg 3, Alembic, Pydantic 2, Celery Beat, HTTPX, TypeScript, Vite, Tailwind CSS, shadcn/ui, Recharts, Nginx, uv, pytest, Testcontainers, Ruff, mypy, structlog and GitHub Actions remain candidates. Version numbers in this list describe proposals.
+Python 3.13, SQLAlchemy 2, Psycopg 3, Alembic, Pydantic 2, Celery Beat, HTTPX, TypeScript, Vite, Tailwind CSS, shadcn/ui, Recharts, Nginx, uv, pytest, Testcontainers, Ruff, mypy and structlog remain candidates. Version numbers in this list describe proposals.
 
 ## Pending architectural decisions
 Dependency versions, database schema, worker concurrency and execution model, partitioning, use of a transactional outbox and delivery guarantees remain open. See the [decision register](decision-register.md) for other pending decisions and Product Discovery topics.

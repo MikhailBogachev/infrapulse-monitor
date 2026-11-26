@@ -63,7 +63,7 @@ The [Decision Register](../project/decision-register.md#approved-product-decisio
 | <a id="f-009"></a> F-009 | Telegram notifications | v0.1.0 MVP | [D-005](../project/decision-register.md#d-005), [PD-004](../project/decision-register.md#pd-004) | Set up Telegram and receive incident transition notifications. |
 | <a id="f-010"></a> F-010 | Dashboard | v0.1.0 MVP | [D-005](../project/decision-register.md#d-005), [PD-008](../project/decision-register.md#pd-008), [PD-013](../project/decision-register.md#pd-013), [PD-014](../project/decision-register.md#pd-014), [PD-015](../project/decision-register.md#pd-015) | Inspect current status and navigate to workspace operational details. |
 | <a id="f-011"></a> F-011 | SSRF protection and rate limiting | v0.1.0 MVP | [D-005](../project/decision-register.md#d-005), [PD-005](../project/decision-register.md#pd-005), [PD-006](../project/decision-register.md#pd-006), [PD-009](../project/decision-register.md#pd-009) | Restrict destinations, protect credentials and bound abusive requests. |
-| <a id="f-012"></a> F-012 | Docker Compose, migrations and CI | v0.1.0 MVP | [D-004](../project/decision-register.md#d-004), [D-005](../project/decision-register.md#d-005), [PD-012](../project/decision-register.md#pd-012) | Start, upgrade and verify a self-hosted environment. |
+| <a id="f-012"></a> F-012 | Docker Compose, migrations and GitHub Actions CI | v0.1.0 MVP | [D-004](../project/decision-register.md#d-004), [D-005](../project/decision-register.md#d-005), [PD-012](../project/decision-register.md#pd-012), [D-010](../project/decision-register.md#d-010) | Start and upgrade a self-hosted environment and verify eligible changes through the required GitHub Actions checks. |
 | <a id="f-013"></a> F-013 | TCP checks | v0.5.0 Beta | [D-005](../project/decision-register.md#d-005), [PD-009](../project/decision-register.md#pd-009) | Check TCP connection availability. |
 | <a id="f-014"></a> F-014 | SSL expiry | v0.5.0 Beta | [D-005](../project/decision-register.md#d-005), [PD-009](../project/decision-register.md#pd-009) | Check remaining TLS certificate validity. |
 | <a id="f-015"></a> F-015 | Email | v0.5.0 Beta | [D-005](../project/decision-register.md#d-005) | Receive incident notifications by email. |
@@ -121,7 +121,7 @@ These are targets. There are no implementation measurements in IP-003.
 
 ## Product Constraints
 
-Respect the approved Modular Monolith technical baseline and Stage 00 technology classifications in the [charter](../project/charter.md#approved-architecture-and-technologies). Product requirements describe externally verifiable behavior. Stage 02 owns detailed design and Stage 03 owns concrete breakpoints and layouts. Implementation requires separate owner authorization.
+Respect the approved Modular Monolith technical baseline and current technology classifications in the [charter](../project/charter.md#approved-architecture-and-technologies). Product requirements describe externally verifiable behavior. Stage 02 owns detailed design and Stage 03 owns concrete breakpoints and layouts. Implementation requires separate owner authorization.
 
 ## Dependencies
 
@@ -137,27 +137,27 @@ See the [risk register](../project/risk-register.md) for network abuse, cross-wo
 
 ## Release Acceptance Gates
 
-- **MVP.** Demonstrate approved authentication, workspace scope, target policy and create → check → incident → configured notification → recovery through the UI. Verify manual execution, dark-only accessibility, mobile usability, retention and the approved baseline measurement protocol.
-- **Beta.** Verify integration behavior, new check types, scoped team and API authorization, published data boundaries, maintenance semantics, metric results and update recovery.
-- **v1.0.0.** Verify audit and report scope, operational telemetry, published repeatable integration and load evidence, documentation and interactive public demo containment and cleanup.
+- **MVP.** Demonstrate approved authentication, workspace scope, target policy and create → check → incident → configured notification → recovery through the UI. Verify JWT use and refresh, manual execution, polling, single-monitor metrics, dark-only accessibility, mobile usability and retention. Verify required checks through executed GitHub Actions runs under [AC-057](acceptance-criteria.md#ac-057). Reproduce the approved measurement protocol and assess the baseline performance and coverage targets separately.
+- **Beta.** Verify integration behavior, new check types, scoped team and API authorization, published data boundaries, maintenance semantics, cross-window and cross-monitor comparisons, observable SSE and update recovery. Evaluate combined multi-monitor metrics only if approved under [Q-06](prd.md#q-06).
+- **v1.0.0.** Verify audit and report scope, operational telemetry, published repeatable integration and load evidence, documentation and interactive public demo containment and verified cleanup under the approved lifecycle policy.
 - **IP-004.** Owner validates the draft requirements, resolves or explicitly defers open questions, and records disposition. Stage 01 remains in progress.
 
 ## Open Questions
 
-All product questions require owner validation. Priority uses MoSCoW.
+All product questions require owner validation. Priority uses MoSCoW. Affected requirements include direct verification dependencies and contextual relationships. The [SRS dependency review](srs.md#open-requirements) records the distinction.
 
 <a id="q-01"></a>
 ### Q-01 — Bootstrap, sessions and settings
 
 **PENDING** · Must · IP-004 product rules, Stage 02 mechanism. Affected requirements [FR-001](srs.md#fr-001), [FR-002](srs.md#fr-002), [FR-003](srs.md#fr-003), [FR-004](srs.md#fr-004), [FR-005](srs.md#fr-005), [FR-006](srs.md#fr-006), [FR-007](srs.md#fr-007), [FR-008](srs.md#fr-008), [FR-010](srs.md#fr-010).
 
-**Proposal.** Use an operator-authorized one-time setup path and review editable account and workspace fields, account ownership, validation, session expiry and signup feedback as a minimal set.
+**Proposal.** Use an operator-authorized one-time setup path and review editable account and workspace fields, account ownership, validation and signup feedback. Validate access-token and refresh-token lifetimes and session eligibility and sign-out policy in IP-004. JWT signing algorithm, token storage, refresh rotation, revocation mechanism and session persistence architecture belong to Stage 02.
 
 **Alternatives.** Operator-provisioned first account or one-time setup entry. Read-only settings until editable fields are approved.
 
 **Trade-offs.** Provisioning reduces public surface but adds operator work. A setup entry improves discovery but needs a secure initial access gate.
 
-**Impact if unresolved.** Identity journeys and the operator control surface cannot be verified end to end.
+**Impact if unresolved.** Full identity verification depends on bootstrap eligibility and token and session parameters. JWT issuance, use and refresh are part of the approved baseline.
 
 <a id="q-02"></a>
 ### Q-02 — HTTP defaults and configuration bounds
@@ -175,7 +175,7 @@ All product questions require owner validation. Priority uses MoSCoW.
 <a id="q-03"></a>
 ### Q-03 — Manual eligibility, collision and rate policy
 
-**PROPOSED** · Must · IP-004. Affected requirements [FR-023](srs.md#fr-023), [FR-024](srs.md#fr-024), [FR-025](srs.md#fr-025), [NFR-005](srs.md#nfr-005), [FR-026](srs.md#fr-026), [FR-027](srs.md#fr-027), [FR-028](srs.md#fr-028), [FR-029](srs.md#fr-029), [FR-061](srs.md#fr-061), [FR-062](srs.md#fr-062), [FR-063](srs.md#fr-063), [FR-064](srs.md#fr-064).
+**PROPOSED** · Must · IP-004. Affected requirements [FR-023](srs.md#fr-023), [FR-024](srs.md#fr-024), [FR-025](srs.md#fr-025), [NFR-005](srs.md#nfr-005), [FR-026](srs.md#fr-026), [FR-027](srs.md#fr-027), [FR-028](srs.md#fr-028), [FR-029](srs.md#fr-029), [FR-061](srs.md#fr-061), [FR-062](srs.md#fr-062), [FR-063](srs.md#fr-063), [FR-064](srs.md#fr-064), [FR-015](srs.md#fr-015).
 
 **Proposal.** Reject paused requests, show existing work on overlap, record a missed scheduled opportunity when a manual check takes its place, keep fixed cadence and exclude manual checks from scheduled metrics and incident evaluation. Define finite rate key, window and cap.
 
@@ -201,20 +201,20 @@ All product questions require owner validation. Priority uses MoSCoW.
 <a id="q-05"></a>
 ### Q-05 — Notification defaults and delivery outcome
 
-**PROPOSED** · Must · IP-004 product rules, Stage 02 delivery model. Affected requirements [FR-038](srs.md#fr-038), [FR-039](srs.md#fr-039), [NFR-007](srs.md#nfr-007), [FR-046](srs.md#fr-046), [FR-047](srs.md#fr-047).
+**PROPOSED** · Must · IP-004 product rules, Stage 02 delivery model. Affected requirements [FR-038](srs.md#fr-038), [FR-039](srs.md#fr-039), [NFR-007](srs.md#nfr-007), [FR-046](srs.md#fr-046), [FR-047](srs.md#fr-047), [FR-065](srs.md#fr-065).
 
-**Proposal.** Enable opening and recovery notices when a channel is configured. Distinguish permanent from transient failure with a finite retry policy and surface ambiguous outcomes.
+**Proposal.** Enable opening and recovery notices by default when a channel is configured. Validate event preferences and retry eligibility for confirmed failures, and decide how to report and whether to retry indeterminate provider outcomes. The delivery model, retry count, intervals and backoff, guarantees and outbox choice remain for Stage 02.
 
 **Alternatives.** Per-event opt-in, or retry fewer ambiguous failures.
 
 **Trade-offs.** Defaults improve visibility but may increase noise. Retrying ambiguous provider outcomes risks recipient duplicates.
 
-**Impact if unresolved.** Notification preferences, retry evidence and ambiguous outcomes remain unsettled.
+**Impact if unresolved.** Default-preference and delivery-edge verification remains conditional. The mandatory delivery test explicitly enables a permitted event in its fixture.
 
 <a id="q-06"></a>
 ### Q-06 — Metric windows, latency and aggregation
 
-**PROPOSED** · Must · IP-004. Affected requirements [FR-028](srs.md#fr-028), [FR-052](srs.md#fr-052), [FR-061](srs.md#fr-061), [FR-062](srs.md#fr-062), [FR-063](srs.md#fr-063), [FR-064](srs.md#fr-064).
+**PROPOSED** · Must · IP-004. Affected requirements [FR-028](srs.md#fr-028), [FR-052](srs.md#fr-052), [FR-061](srs.md#fr-061), [FR-062](srs.md#fr-062), [FR-063](srs.md#fr-063), [FR-064](srs.md#fr-064), [FR-066](srs.md#fr-066).
 
 **Proposal.** Use the proposed UTC observation windows, rounding, nearest-rank percentiles and sample rules. Aggregate qualifying observations across selected eligible monitors in Beta.
 
@@ -255,7 +255,7 @@ All product questions require owner validation. Priority uses MoSCoW.
 
 **PROPOSED** · Must · IP-004. Affected requirements [FR-043](srs.md#fr-043), [FR-044](srs.md#fr-044), [FR-045](srs.md#fr-045), [FR-059](srs.md#fr-059), [FR-060](srs.md#fr-060), [NFR-022](srs.md#nfr-022).
 
-**Proposal.** Adopt the typed check proposals, cap input and response costs, and validate TLS time boundaries, literal matching, JSON assertion operators and timeout classification.
+**Proposal.** Adopt the typed check proposals, cap input and response costs, and validate TLS time boundaries, literal matching, JSON assertion operators, whether malformed target JSON is classified as failure, and timeout classification.
 
 **Alternatives.** Use exact literal-only JSON comparisons or support additional bounded declarative operators. Default TLS port or require it.
 
@@ -268,7 +268,7 @@ All product questions require owner validation. Priority uses MoSCoW.
 
 **PENDING** · Must · IP-004 product rules, Stage 02 threat model. Affected requirements [FR-010](srs.md#fr-010), [NFR-008](srs.md#nfr-008), [NFR-009](srs.md#nfr-009), [NFR-010](srs.md#nfr-010), [NFR-011](srs.md#nfr-011), [NFR-012](srs.md#nfr-012), [FR-047](srs.md#fr-047), [NFR-017](srs.md#nfr-017), [NFR-022](srs.md#nfr-022).
 
-**Proposal.** Adopt deny precedence, classify internal allowlist eligibility and always-denied address classes, and validate port, redirect and general rate policy with controlled fixtures.
+**Proposal.** Deny precedence is approved under PD-006. Validate exact allowlist matching, CIDR handling, eligibility, the complete sensitive-range classification, port restrictions, mixed DNS answers, redirect details and general rate policy using controlled fixtures. Egress filtering and DNS pinning choices belong to Stage 02.
 
 **Alternatives.** Limit allowlisting to isolated host entries or permit approved bounded ranges. Reject any mixed DNS answer set or use only still-eligible answers.
 
@@ -279,7 +279,7 @@ All product questions require owner validation. Priority uses MoSCoW.
 <a id="q-11"></a>
 ### Q-11 — Performance workload and coverage protocol
 
-**PROPOSED** · Must · IP-004 protocol, Stage 07 execution. Affected requirements [NFR-023](srs.md#nfr-023), [NFR-024](srs.md#nfr-024), [NFR-025](srs.md#nfr-025), [NFR-026](srs.md#nfr-026), [NFR-032](srs.md#nfr-032).
+**PROPOSED** · Must · IP-004 protocol, Stage 07 execution. Affected requirements [NFR-023](srs.md#nfr-023), [NFR-024](srs.md#nfr-024), [NFR-025](srs.md#nfr-025), [NFR-026](srs.md#nfr-026), [NFR-032](srs.md#nfr-032), [NFR-033](srs.md#nfr-033).
 
 **Proposal.** Use the proposed workload mix, client count and measurement periods. Approve reference environment, failure allowances, scheduling and backlog criteria, and coverage scope.
 
@@ -300,20 +300,20 @@ All product questions require owner validation. Priority uses MoSCoW.
 
 **Trade-offs.** Faster updates improve freshness but increase background traffic.
 
-**Impact if unresolved.** Timing acceptance and Beta reconnect readiness remain open.
+**Impact if unresolved.** Mechanism-level verification can observe polling and SSE. Full freshness and reconnect verification depends on approved cadence, delay tolerances and operating details, including fallback behavior.
 
 <a id="q-13"></a>
 ### Q-13 — Demo surfaces, limits and cleanup
 
 **PENDING** · Must · IP-004 policy, Stage 03 UX. Affected requirements [FR-058](srs.md#fr-058), [NFR-017](srs.md#nfr-017), [NFR-018](srs.md#nfr-018), [NFR-019](srs.md#nfr-019).
 
-**Proposal.** Reuse existing monitoring screens for synthetic workflows and propose an entry and reset surface or automatic expiry. Validate quotas, session duration, cleanup bound and allowed simulated notifications.
+**Proposal.** Reuse existing monitoring screens for synthetic workflows and propose an entry and reset surface or automatic expiry. Validate quotas, session duration, reset or expiry triggers, data in scope, cleanup deadline, deletion or another explicitly approved cleanup method, and allowed simulated notifications.
 
 **Alternatives.** Use a shared read-only tour plus isolated interactive sessions, or isolated sessions alone.
 
 **Trade-offs.** Reuse limits UI effort. Visible reset improves clarity. Automatic cleanup limits exposure but may interrupt a visitor.
 
-**Impact if unresolved.** Demo screen coverage and isolation acceptance cannot be closed.
+**Impact if unresolved.** Demo entry and reset screen coverage and full quota and lifecycle acceptance cannot be closed. Access denial alone is insufficient evidence of cleanup.
 
 <a id="q-14"></a>
 ### Q-14 — Responsive and accessibility verification
@@ -333,13 +333,13 @@ All product questions require owner validation. Priority uses MoSCoW.
 
 **PENDING** · Should · IP-004 product behavior, Stage 02 contracts. Affected requirements [FR-053](srs.md#fr-053), [FR-054](srs.md#fr-054), [FR-055](srs.md#fr-055), [FR-056](srs.md#fr-056), [NFR-016](srs.md#nfr-016), [FR-057](srs.md#fr-057).
 
-**Proposal.** Validate public status fields, API key scopes and expiry, maintenance boundaries and effects, auditable events, operational signal set and export formats.
+**Proposal.** Validate public status fields, API key scopes and expiry, maintenance boundaries and effects on incidents, availability and latency, auditable events, operational signal set and export formats.
 
 **Alternatives.** Adopt a minimal field set and expand after release, or broaden supported fields after owner review.
 
 **Trade-offs.** Minimal exposure protects sensitive data and reduces validation effort but limits reporting and automation flexibility.
 
-**Impact if unresolved.** Detailed gates remain conditional for these approved baseline features.
+**Impact if unresolved.** Detailed gates remain conditional. The effect of maintenance windows on availability and latency remains an explicit traceability gap until the owner approves a rule.
 
 ## References
 

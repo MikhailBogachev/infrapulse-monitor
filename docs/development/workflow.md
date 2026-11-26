@@ -38,4 +38,4 @@ Task ID; title; context; objective; functional requirements; technical requireme
 - CI passed; human review completed; PR merged into main.
 
 ## Review discipline
-Record material decisions as ADRs with context, options, decision and consequences. Do not treat a proposed ADR as approved. Report test evidence and unresolved issues. Actual GitHub settings, CI commands and branch protections will be established in Stage 04.
+Record material decisions as ADRs with context, options, decision and consequences. Do not treat a proposed ADR as approved. Report test evidence and unresolved issues. [D-010](../project/decision-register.md#d-010) requires GitHub Actions for MVP CI. Stage 04 establishes the pipeline and its verification commands. GitHub settings and branch protections remain pending.
