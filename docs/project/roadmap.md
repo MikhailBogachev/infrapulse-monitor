@@ -6,7 +6,7 @@ Eight-week planning estimate for InfraPulse alone, not a delivery guarantee. Wee
 | Stage | Weeks | Deliverables / exit gate |
 |---|---|---|
 | 00 Initialization | 1 | Approved charter, roadmap, risks, glossary |
-| 01 Product Discovery | 1 | IP-003 prepares nine draft product documents. IP-004 validates them for owner approval before the discovery gate can close. |
+| 01 Product Discovery | 1 | IP-003 delivers nine product documents. IP-004 incorporates the approved product decisions and prepares the documentation for owner acceptance before the discovery gate closes. |
 | 02 System Design | 1–2 | Architecture, ERD, API, queue semantics, threat model, ADRs |
 | 03 UI/UX | 2 | Screen flows, design system, responsive mockups |
 | 04 Development Setup | 2 | Repository, locked dependencies, [GitHub Actions CI](decision-register.md#d-010), Compose, verified toolchain |
@@ -20,11 +20,11 @@ Eight-week planning estimate for InfraPulse alone, not a delivery guarantee. Wee
 
 Stage 01 is **IN PROGRESS**. IP-002 is approved. IP-003 delivers the [PRD](../product/prd.md), [SRS](../product/srs.md), [personas](../product/user-personas.md), [stories](../product/user-stories.md), [flows and screen catalog](../product/user-flows.md), [business rules](../product/business-rules.md), [acceptance criteria](../product/acceptance-criteria.md), [backlog](../product/product-backlog.md) and [traceability matrix](../product/requirements-traceability-matrix.md).
 
-IP-003 was merged in PR #2 with unresolved review findings. Final Review R1 failed, IP-003-R1 corrections are complete in the working tree, and Final Review R2 required further corrections. IP-003-R2 corrections are complete. Independent Final Review R3 failed. Final Review R4 reviewed the IP-003-R3 corrections and identified REV-010 as the remaining blocker. The IP-003-R4 correction is complete in the working tree and awaits owner review before integration.
+IP-003 is **COMPLETED AND MERGED**, including its review corrections.
 
-## IP-004 validation gate
+## IP-004 acceptance gate
 
-IP-004 is pending. The owner reviews derived behavior against PD-001–PD-015, verifies traceability and release coverage, and approves, revises or explicitly defers open decisions. Stage 01 closure requires explicit owner approval. Stage 02 is pending.
+IP-004 and the product documentation are **READY FOR OWNER APPROVAL**. [Q-01–Q-15](decision-register.md#ip-004-product-decisions) are approved. The owner reviews the finalized documentation, traceability and release coverage. Stage 01 remains IN PROGRESS until explicit owner acceptance. Stage 02 remains PENDING.
 
 ## Release gates
 

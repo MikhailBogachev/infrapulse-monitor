@@ -2,21 +2,21 @@
 
 | Field | Value |
 |---|---|
-| Document Status | DRAFT — PENDING VALIDATION |
-| Version | 0.1 |
+| Document Status | READY FOR OWNER APPROVAL |
+| Version | 0.2 |
 | Responsible Role | Product Analyst |
 | Related Project Stage | Stage 01 — Product Discovery |
-| Project Task | IP-003 |
-| Validation | IP-004, pending owner review |
+| Project Task | IP-004 |
+| Validation | IP-004, final owner acceptance pending |
 
 ## Release stories
 
-Must, Should, Could and Won't use MoSCoW semantics within each target release. Priorities and derived stories are pending validation. Product-facing workflows are represented. Platform internals and test evidence remain in the SRS and backlog.
+Must, Should, Could and Won't use MoSCoW semantics within each target release. The stories are ready for owner acceptance. Deferred stories require later approval. Product-facing workflows are represented. Platform internals and test evidence remain in the SRS and backlog.
 
 <a id="us-001"></a>
 ### US-001 — Establish the first account and control public signup
 
-As an Installation Operator, I want to establish the first account and control public signup, so that I can decide who can register on my installation.
+As an Installation Operator, I want to establish the first Owner through protected one-time setup and control public signup, so that I can decide who can register on my installation.
 
 | Field | Value |
 |---|---|
@@ -29,7 +29,7 @@ As an Installation Operator, I want to establish the first account and control p
 | Business rules | [BR-001](business-rules.md#br-001), [BR-002](business-rules.md#br-002) |
 | Acceptance criteria | [AC-001](acceptance-criteria.md#ac-001), [AC-002](acceptance-criteria.md#ac-002), [AC-003](acceptance-criteria.md#ac-003), [AC-004](acceptance-criteria.md#ac-004) |
 | Dependencies | Initial setup for authenticated use |
-| Status | DERIVED DRAFT |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-002"></a>
 ### US-002 — Sign up when eligible and sign in, renew and end my session
@@ -46,8 +46,8 @@ As a Visitor or account holder, I want to sign up when eligible, sign in with JW
 | Other requirements | — |
 | Business rules | [BR-001](business-rules.md#br-001), [BR-003](business-rules.md#br-003) |
 | Acceptance criteria | [AC-003](acceptance-criteria.md#ac-003), [AC-004](acceptance-criteria.md#ac-004), [AC-005](acceptance-criteria.md#ac-005), [AC-006](acceptance-criteria.md#ac-006), [AC-007](acceptance-criteria.md#ac-007) |
-| Dependencies | Initial setup for authenticated use. Token and session parameters remain [Q-01](prd.md#q-01). |
-| Status | DERIVED DRAFT |
+| Dependencies | Initial setup for authenticated use. See [Q-01](prd.md#q-01) for token lifetimes, refresh rotation and session revocation. Stage 02 defines implementation. |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-003"></a>
 ### US-003 — Workspace isolation
@@ -65,7 +65,7 @@ As a Workspace Owner, I want to manage my workspace settings and see only author
 | Business rules | [BR-004](business-rules.md#br-004), [BR-005](business-rules.md#br-005), [BR-022](business-rules.md#br-022) |
 | Acceptance criteria | [AC-009](acceptance-criteria.md#ac-009), [AC-010](acceptance-criteria.md#ac-010), [AC-011](acceptance-criteria.md#ac-011) |
 | Dependencies | [F-001](prd.md#f-001) |
-| Status | DERIVED DRAFT |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-004"></a>
 ### US-004 — Monitor CRUD
@@ -82,8 +82,8 @@ As a Workspace Owner, I want to create, inspect, edit, pause, resume and delete 
 | Other requirements | — |
 | Business rules | [BR-006](business-rules.md#br-006), [BR-009](business-rules.md#br-009), [BR-012](business-rules.md#br-012), [BR-019](business-rules.md#br-019), [BR-020](business-rules.md#br-020) |
 | Acceptance criteria | [AC-012](acceptance-criteria.md#ac-012), [AC-013](acceptance-criteria.md#ac-013), [AC-014](acceptance-criteria.md#ac-014), [AC-015](acceptance-criteria.md#ac-015), [AC-016](acceptance-criteria.md#ac-016) |
-| Dependencies | [F-002](prd.md#f-002). Pause covers recurring checks. Paused manual execution remains [Q-03](prd.md#q-03). |
-| Status | DERIVED DRAFT |
+| Dependencies | [F-002](prd.md#f-002). PAUSED prevents both new scheduled execution and manual execution. |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-005"></a>
 ### US-005 — HTTP/HTTPS checks
@@ -101,7 +101,7 @@ As a Backend Developer, I want to configure GET or HEAD checks with an expected 
 | Business rules | [BR-006](business-rules.md#br-006), [BR-008](business-rules.md#br-008), [BR-013](business-rules.md#br-013) |
 | Acceptance criteria | [AC-017](acceptance-criteria.md#ac-017), [AC-018](acceptance-criteria.md#ac-018), [AC-019](acceptance-criteria.md#ac-019), [AC-020](acceptance-criteria.md#ac-020) |
 | Dependencies | [F-002](prd.md#f-002) |
-| Status | DERIVED DRAFT |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-006"></a>
 ### US-006 — Scheduler
@@ -119,7 +119,7 @@ As a DevOps Engineer, I want to configure a recurring check interval and see its
 | Business rules | [BR-007](business-rules.md#br-007), [BR-009](business-rules.md#br-009) |
 | Acceptance criteria | [AC-021](acceptance-criteria.md#ac-021), [AC-022](acceptance-criteria.md#ac-022), [AC-023](acceptance-criteria.md#ac-023) |
 | Dependencies | [F-002](prd.md#f-002) |
-| Status | DERIVED DRAFT |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-007"></a>
 ### US-007 — Check history
@@ -137,7 +137,7 @@ As a Backend Developer, I want to review check outcomes, times and origins, so t
 | Business rules | [BR-008](business-rules.md#br-008), [BR-009](business-rules.md#br-009), [BR-010](business-rules.md#br-010), [BR-013](business-rules.md#br-013), [BR-014](business-rules.md#br-014), [BR-015](business-rules.md#br-015), [BR-016](business-rules.md#br-016), [BR-022](business-rules.md#br-022), [BR-023](business-rules.md#br-023) |
 | Acceptance criteria | [AC-025](acceptance-criteria.md#ac-025), [AC-028](acceptance-criteria.md#ac-028), [AC-035](acceptance-criteria.md#ac-035), [AC-036](acceptance-criteria.md#ac-036), [AC-041](acceptance-criteria.md#ac-041) |
 | Dependencies | [F-002](prd.md#f-002) |
-| Status | DERIVED DRAFT |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-008"></a>
 ### US-008 — Incidents
@@ -155,7 +155,7 @@ As a DevOps Engineer, I want to configure detection thresholds and inspect incid
 | Business rules | [BR-006](business-rules.md#br-006), [BR-008](business-rules.md#br-008), [BR-012](business-rules.md#br-012), [BR-013](business-rules.md#br-013), [BR-014](business-rules.md#br-014), [BR-015](business-rules.md#br-015), [BR-016](business-rules.md#br-016), [BR-017](business-rules.md#br-017), [BR-019](business-rules.md#br-019), [BR-020](business-rules.md#br-020), [BR-021](business-rules.md#br-021), [BR-022](business-rules.md#br-022) |
 | Acceptance criteria | [AC-037](acceptance-criteria.md#ac-037), [AC-038](acceptance-criteria.md#ac-038), [AC-039](acceptance-criteria.md#ac-039), [AC-040](acceptance-criteria.md#ac-040), [AC-041](acceptance-criteria.md#ac-041), [AC-042](acceptance-criteria.md#ac-042), [AC-043](acceptance-criteria.md#ac-043) |
 | Dependencies | [F-002](prd.md#f-002) |
-| Status | DERIVED DRAFT |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-009"></a>
 ### US-009 — Telegram notifications
@@ -172,8 +172,8 @@ As a Workspace Owner, I want the configured Telegram recipient to receive alerts
 | Other requirements | [NFR-007](srs.md#nfr-007) |
 | Business rules | [BR-017](business-rules.md#br-017), [BR-018](business-rules.md#br-018) |
 | Acceptance criteria | [AC-044](acceptance-criteria.md#ac-044), [AC-045](acceptance-criteria.md#ac-045), [AC-046](acceptance-criteria.md#ac-046), [AC-097](acceptance-criteria.md#ac-097), [AC-048](acceptance-criteria.md#ac-048) |
-| Dependencies | [F-002](prd.md#f-002). Verify delivery with a permitted event and controlled available provider. Default event preferences and delivery edges remain [Q-05](prd.md#q-05). |
-| Status | DERIVED DRAFT |
+| Dependencies | [F-002](prd.md#f-002). Verify delivery with a permitted event and controlled available provider. Incident Opened and Incident Resolved are enabled by default for configured, enabled Telegram delivery. Stage 02 defines retries and deduplication. |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-010"></a>
 ### US-010 — Dashboard
@@ -190,8 +190,8 @@ As a Workspace Owner, I want to see current workspace status and its freshness i
 | Other requirements | [NFR-027](srs.md#nfr-027), [NFR-028](srs.md#nfr-028), [NFR-029](srs.md#nfr-029), [NFR-030](srs.md#nfr-030), [NFR-031](srs.md#nfr-031) |
 | Business rules | — |
 | Acceptance criteria | [AC-047](acceptance-criteria.md#ac-047), [AC-048](acceptance-criteria.md#ac-048), [AC-091](acceptance-criteria.md#ac-091), [AC-092](acceptance-criteria.md#ac-092), [AC-093](acceptance-criteria.md#ac-093), [AC-094](acceptance-criteria.md#ac-094), [AC-095](acceptance-criteria.md#ac-095) |
-| Dependencies | [F-002](prd.md#f-002). Polling cadence and freshness tolerances remain [Q-12](prd.md#q-12). |
-| Status | DERIVED DRAFT |
+| Dependencies | [F-002](prd.md#f-002). Open polling screens refresh every 10 seconds and signal staleness after 30 seconds without a successful update. |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-011"></a>
 ### US-011 — SSRF protection and rate limiting
@@ -209,8 +209,8 @@ As an Installation Operator, I want to control eligible internal targets and kee
 | Verification focus | This outcome is specified by operational or security requirements. |
 | Business rules | [BR-005](business-rules.md#br-005), [BR-006](business-rules.md#br-006), [BR-022](business-rules.md#br-022) |
 | Acceptance criteria | [AC-050](acceptance-criteria.md#ac-050), [AC-051](acceptance-criteria.md#ac-051), [AC-052](acceptance-criteria.md#ac-052), [AC-053](acceptance-criteria.md#ac-053), [AC-054](acceptance-criteria.md#ac-054) |
-| Dependencies | [F-002](prd.md#f-002). Exact installation policy parameters remain [Q-10](prd.md#q-10). |
-| Status | DERIVED DRAFT |
+| Dependencies | [F-002](prd.md#f-002). Apply the approved policy in [Q-10](prd.md#q-10) to every supported outbound path. |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-012"></a>
 ### US-012 — Docker Compose, migrations and CI
@@ -227,9 +227,9 @@ As an Installation Operator, I want to start and upgrade an installation using d
 | Other requirements | [NFR-013](srs.md#nfr-013), [NFR-014](srs.md#nfr-014), [NFR-033](srs.md#nfr-033) |
 | Verification focus | This outcome is specified by operational or security requirements. |
 | Business rules | — |
-| Acceptance criteria | [AC-055](acceptance-criteria.md#ac-055), [AC-056](acceptance-criteria.md#ac-056), [AC-100](acceptance-criteria.md#ac-100) |
+| Acceptance criteria | [AC-055](acceptance-criteria.md#ac-055), [AC-056](acceptance-criteria.md#ac-056), [AC-057](acceptance-criteria.md#ac-057), [AC-100](acceptance-criteria.md#ac-100) |
 | Dependencies | Supported host and documented prerequisites |
-| Status | DERIVED DRAFT |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-013"></a>
 ### US-013 — TCP checks
@@ -247,7 +247,7 @@ As a DevOps Engineer, I want to check TCP connection availability, so that I can
 | Business rules | [BR-006](business-rules.md#br-006), [BR-022](business-rules.md#br-022) |
 | Acceptance criteria | [AC-058](acceptance-criteria.md#ac-058), [AC-082](acceptance-criteria.md#ac-082) |
 | Dependencies | [F-002](prd.md#f-002) |
-| Status | DERIVED DRAFT |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-014"></a>
 ### US-014 — SSL expiry
@@ -265,7 +265,7 @@ As a DevOps Engineer, I want to monitor remaining certificate lifetime, so that 
 | Business rules | [BR-006](business-rules.md#br-006), [BR-022](business-rules.md#br-022) |
 | Acceptance criteria | [AC-059](acceptance-criteria.md#ac-059), [AC-060](acceptance-criteria.md#ac-060), [AC-082](acceptance-criteria.md#ac-082) |
 | Dependencies | [F-002](prd.md#f-002) |
-| Status | DERIVED DRAFT |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-015"></a>
 ### US-015 — Email
@@ -283,7 +283,7 @@ As a Workspace Owner, I want to configure email incident notifications, so that 
 | Business rules | [BR-017](business-rules.md#br-017) |
 | Acceptance criteria | [AC-061](acceptance-criteria.md#ac-061) |
 | Dependencies | [F-002](prd.md#f-002) |
-| Status | DERIVED DRAFT |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-016"></a>
 ### US-016 — Webhooks
@@ -301,7 +301,7 @@ As a Workspace Owner, I want to configure a permitted incident webhook, so that 
 | Business rules | [BR-017](business-rules.md#br-017), [BR-022](business-rules.md#br-022) |
 | Acceptance criteria | [AC-062](acceptance-criteria.md#ac-062) |
 | Dependencies | [F-002](prd.md#f-002) |
-| Status | DERIVED DRAFT |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-017"></a>
 ### US-017 — RBAC
@@ -319,7 +319,7 @@ As a Workspace Owner, I want to assign workspace roles and have their boundaries
 | Business rules | [BR-005](business-rules.md#br-005) |
 | Acceptance criteria | [AC-063](acceptance-criteria.md#ac-063), [AC-064](acceptance-criteria.md#ac-064) |
 | Dependencies | [F-002](prd.md#f-002) |
-| Status | DERIVED DRAFT |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-018"></a>
 ### US-018 — Uptime and latency analytics
@@ -336,8 +336,8 @@ As a Small Engineering Team member, I want to compare uptime and latency and see
 | Other requirements | — |
 | Business rules | [BR-024](business-rules.md#br-024), [BR-025](business-rules.md#br-025) |
 | Acceptance criteria | [AC-049](acceptance-criteria.md#ac-049), [AC-067](acceptance-criteria.md#ac-067), [AC-098](acceptance-criteria.md#ac-098) |
-| Dependencies | [F-002](prd.md#f-002), [F-007](prd.md#f-007). Comparison uses supported windows. Combined metrics are conditional on [Q-06](prd.md#q-06); live-update tolerances remain [Q-12](prd.md#q-12). |
-| Status | DERIVED DRAFT |
+| Dependencies | [F-002](prd.md#f-002), [F-007](prd.md#f-007). Comparison uses supported windows. Combine valid observations across eligible selected monitors. Beta live views use SSE. |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-019"></a>
 ### US-019 — Publish a status page
@@ -355,7 +355,7 @@ As a Workspace Owner, I want to publish the status of selected monitors, so that
 | Business rules | [BR-004](business-rules.md#br-004) |
 | Acceptance criteria | [AC-068](acceptance-criteria.md#ac-068) |
 | Dependencies | [F-002](prd.md#f-002) |
-| Status | DERIVED DRAFT |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-020"></a>
 ### US-020 — Read public status
@@ -373,12 +373,12 @@ As a Public status visitor, I want to view published service status without sign
 | Business rules | [BR-004](business-rules.md#br-004) |
 | Acceptance criteria | [AC-068](acceptance-criteria.md#ac-068) |
 | Dependencies | [F-002](prd.md#f-002) |
-| Status | DERIVED DRAFT |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-021"></a>
 ### US-021 — Maintenance windows
 
-As a Workspace Owner, I want to schedule and inspect maintenance windows, so that I can communicate when maintenance is planned.
+As a Workspace Owner, I want to schedule and inspect maintenance windows so checks can continue while notifications are suppressed and maintenance results are excluded from uptime.
 
 | Field | Value |
 |---|---|
@@ -388,10 +388,10 @@ As a Workspace Owner, I want to schedule and inspect maintenance windows, so tha
 | Features | [F-020](prd.md#f-020) |
 | Functional requirements | [FR-054](srs.md#fr-054) |
 | Other requirements | — |
-| Business rules | — |
+| Business rules | [BR-024](business-rules.md#br-024) |
 | Acceptance criteria | [AC-069](acceptance-criteria.md#ac-069) |
-| Dependencies | [F-002](prd.md#f-002). Maintenance effects on availability and latency remain [Q-15](prd.md#q-15). |
-| Status | DERIVED DRAFT |
+| Dependencies | [F-002](prd.md#f-002). Scheduled checks continue during maintenance, notifications are suppressed and maintenance results are excluded from uptime. |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-022"></a>
 ### US-022 — API keys
@@ -409,7 +409,7 @@ As a Workspace Owner, I want to create and revoke a scoped API key, so that I ca
 | Business rules | [BR-005](business-rules.md#br-005) |
 | Acceptance criteria | [AC-070](acceptance-criteria.md#ac-070) |
 | Dependencies | [F-002](prd.md#f-002) |
-| Status | DERIVED DRAFT |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-023"></a>
 ### US-023 — Audit log
@@ -427,7 +427,7 @@ As a Workspace Owner, I want to inspect my workspace audit log, so that I can id
 | Business rules | [BR-004](business-rules.md#br-004) |
 | Acceptance criteria | [AC-071](acceptance-criteria.md#ac-071) |
 | Dependencies | [F-002](prd.md#f-002) |
-| Status | DERIVED DRAFT |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-024"></a>
 ### US-024 — Prometheus/Grafana
@@ -446,7 +446,7 @@ As an Installation Operator, I want to see system health through Prometheus and 
 | Business rules | — |
 | Acceptance criteria | [AC-072](acceptance-criteria.md#ac-072) |
 | Dependencies | [F-002](prd.md#f-002) |
-| Status | DERIVED DRAFT |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-025"></a>
 ### US-025 — Report export
@@ -464,12 +464,12 @@ As a Small Engineering Team member, I want to export an authorized monitoring re
 | Business rules | [BR-004](business-rules.md#br-004) |
 | Acceptance criteria | [AC-073](acceptance-criteria.md#ac-073) |
 | Dependencies | [F-002](prd.md#f-002) |
-| Status | DERIVED DRAFT |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-026"></a>
 ### US-026 — Demo mode
 
-As a Public demo visitor, I want to try monitoring and incident workflows with synthetic targets, so that I can evaluate the product safely.
+As a Public demo visitor, I want to create a monitor for a controlled HTTP service without registering and see the resulting incident open and resolve in my temporary workspace.
 
 | Field | Value |
 |---|---|
@@ -482,7 +482,7 @@ As a Public demo visitor, I want to try monitoring and incident workflows with s
 | Business rules | [BR-022](business-rules.md#br-022), [BR-026](business-rules.md#br-026) |
 | Acceptance criteria | [AC-074](acceptance-criteria.md#ac-074), [AC-075](acceptance-criteria.md#ac-075) |
 | Dependencies | Controlled synthetic targets and isolated sessions |
-| Status | DERIVED DRAFT |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-027"></a>
 ### US-027 — Public demo deployment
@@ -500,8 +500,8 @@ As a Public demo visitor, I want to use a clean isolated demo session, so that m
 | Verification focus | This outcome is specified by operational or security requirements. |
 | Business rules | [BR-004](business-rules.md#br-004), [BR-022](business-rules.md#br-022), [BR-023](business-rules.md#br-023), [BR-026](business-rules.md#br-026) |
 | Acceptance criteria | [AC-075](acceptance-criteria.md#ac-075), [AC-076](acceptance-criteria.md#ac-076), [AC-077](acceptance-criteria.md#ac-077) |
-| Dependencies | [F-025](prd.md#f-025), [F-011](prd.md#f-011). Reset or expiry requires verified cleanup of the validated data scope under [Q-13](prd.md#q-13). |
-| Status | DERIVED DRAFT |
+| Dependencies | [F-025](prd.md#f-025), [F-011](prd.md#f-011). Limit each anonymous session to 5 monitors and 60 minutes. Verify actual cleanup within 15 minutes of termination. |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-028"></a>
 ### US-028 — Documentation
@@ -520,7 +520,7 @@ As an Installation Operator, I want to follow English installation and operation
 | Business rules | — |
 | Acceptance criteria | [AC-079](acceptance-criteria.md#ac-079) |
 | Dependencies | Verified release setup and operating behavior |
-| Status | DERIVED DRAFT |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-029"></a>
 ### US-029 — Run Check Now
@@ -537,8 +537,8 @@ As a Workspace Owner, I want to request an immediate authorized check and inspec
 | Other requirements | [NFR-005](srs.md#nfr-005) |
 | Business rules | [BR-004](business-rules.md#br-004), [BR-005](business-rules.md#br-005), [BR-009](business-rules.md#br-009), [BR-010](business-rules.md#br-010), [BR-011](business-rules.md#br-011), [BR-016](business-rules.md#br-016), [BR-019](business-rules.md#br-019), [BR-024](business-rules.md#br-024), [BR-025](business-rules.md#br-025) |
 | Acceptance criteria | [AC-027](acceptance-criteria.md#ac-027), [AC-028](acceptance-criteria.md#ac-028), [AC-029](acceptance-criteria.md#ac-029), [AC-030](acceptance-criteria.md#ac-030), [AC-031](acceptance-criteria.md#ac-031), [AC-032](acceptance-criteria.md#ac-032), [AC-033](acceptance-criteria.md#ac-033), [AC-034](acceptance-criteria.md#ac-034) |
-| Dependencies | [F-002](prd.md#f-002), [F-007](prd.md#f-007). Paused manual behavior and related policy remain [Q-03](prd.md#q-03). |
-| Status | DERIVED DRAFT |
+| Dependencies | [F-002](prd.md#f-002), [F-007](prd.md#f-007). Run diagnostics on active monitors only, at most once per monitor in 30 seconds, without schedule or live monitoring effects. |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-030"></a>
 ### US-030 — HTTP keyword monitoring
@@ -556,7 +556,7 @@ As a Backend Developer, I want to check HTTP response content for a literal keyw
 | Business rules | [BR-006](business-rules.md#br-006), [BR-022](business-rules.md#br-022) |
 | Acceptance criteria | [AC-080](acceptance-criteria.md#ac-080), [AC-082](acceptance-criteria.md#ac-082) |
 | Dependencies | [F-002](prd.md#f-002) |
-| Status | DERIVED DRAFT |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-031"></a>
 ### US-031 — JSON assertion monitoring
@@ -573,8 +573,8 @@ As a Backend Developer, I want to configure a declarative JSON assertion, so tha
 | Other requirements | [NFR-022](srs.md#nfr-022) |
 | Business rules | [BR-006](business-rules.md#br-006), [BR-022](business-rules.md#br-022) |
 | Acceptance criteria | [AC-081](acceptance-criteria.md#ac-081), [AC-082](acceptance-criteria.md#ac-082), [AC-099](acceptance-criteria.md#ac-099) |
-| Dependencies | [F-002](prd.md#f-002). Malformed target JSON classification is conditional on [Q-09](prd.md#q-09). |
-| Status | DERIVED DRAFT |
+| Dependencies | [F-002](prd.md#f-002). Malformed target JSON fails the check. |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-032"></a>
 ### US-032 — Workspace invitations and membership
@@ -592,7 +592,7 @@ As a Workspace Owner, I want to invite and remove workspace participants, so tha
 | Business rules | [BR-001](business-rules.md#br-001), [BR-005](business-rules.md#br-005) |
 | Acceptance criteria | [AC-064](acceptance-criteria.md#ac-064), [AC-065](acceptance-criteria.md#ac-065), [AC-066](acceptance-criteria.md#ac-066) |
 | Dependencies | [F-002](prd.md#f-002) |
-| Status | DERIVED DRAFT |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-033"></a>
 ### US-033 — Basic uptime and latency metrics
@@ -609,8 +609,8 @@ As a Workspace Owner, I want to view uptime, latency and the number of qualifyin
 | Other requirements | — |
 | Business rules | [BR-008](business-rules.md#br-008), [BR-013](business-rules.md#br-013), [BR-019](business-rules.md#br-019), [BR-024](business-rules.md#br-024), [BR-025](business-rules.md#br-025) |
 | Acceptance criteria | [AC-083](acceptance-criteria.md#ac-083), [AC-084](acceptance-criteria.md#ac-084), [AC-085](acceptance-criteria.md#ac-085), [AC-086](acceptance-criteria.md#ac-086) |
-| Dependencies | [F-002](prd.md#f-002), [F-007](prd.md#f-007). MVP metrics apply per monitor. Exact window and sample rules remain [Q-06](prd.md#q-06). |
-| Status | DERIVED DRAFT |
+| Dependencies | [F-002](prd.md#f-002), [F-007](prd.md#f-007). MVP metrics apply per monitor. Use the approved UTC periods and nearest-rank sample rules in [Q-06](prd.md#q-06). |
+| Status | READY FOR OWNER APPROVAL |
 
 <a id="us-034"></a>
 ### US-034 — View and update my own supported account settings
@@ -628,7 +628,7 @@ As an Account holder, I want to view and update my own supported account setting
 | Business rules | [BR-003](business-rules.md#br-003) |
 | Acceptance criteria | [AC-008](acceptance-criteria.md#ac-008) |
 | Dependencies | Initial setup for authenticated use |
-| Status | PROPOSED |
+| Status | DEFERRED |
 
 ## References
 

@@ -2,12 +2,12 @@
 
 | Field | Value |
 |---|---|
-| Document Status | DRAFT — PENDING VALIDATION |
-| Version | 0.1 |
+| Document Status | READY FOR OWNER APPROVAL |
+| Version | 0.2 |
 | Responsible Role | Product Analyst |
 | Related Project Stage | Stage 01 — Product Discovery |
-| Project Task | IP-003 |
-| Validation | IP-004, pending owner review |
+| Project Task | IP-004 |
+| Validation | IP-004, final owner acceptance pending |
 
 ## Executive Summary
 
@@ -46,7 +46,7 @@ Deliver a usable monitoring-to-recovery journey in MVP, extend monitoring and co
 
 ## Approved Product Decisions
 
-The [Decision Register](../project/decision-register.md#approved-product-decisions) defines PD-001 through PD-015. Approval applies to product decisions and their explicit scope. The derived requirements are draft material for IP-004. The [matrix](requirements-traceability-matrix.md) maps decisions to features and verification.
+The [Decision Register](../project/decision-register.md#approved-product-decisions) defines PD-001 through PD-015. Approval applies to product decisions and their explicit scope. Q-01–Q-15 finalize the approved parameters. The derived specification is ready for final owner acceptance. The [matrix](requirements-traceability-matrix.md) maps decisions to features and verification.
 
 ## Feature Catalog
 
@@ -111,13 +111,14 @@ See [User Flows](user-flows.md) for alternate and failure paths.
 | Target | Evidence |
 |---|---|
 | 1,000 active monitors at 60 seconds | Reproducible baseline workload with measured scheduling and result completion. |
-| API p95 at most 200 ms | API latency distribution under an approved operation mix. |
-| Backend test coverage at least 80% | Coverage report with approved scope and metric. |
+| API p95 at most 200 ms | Valid baseline evidence with external check duration excluded. |
+| Backend line coverage at least 80% | Coverage report with approved scope and metric. |
+| API server error rate below 1% and scheduling delay p95 at most 5 seconds | Valid baseline API and scheduling evidence under Q-11. |
 | 30-day check history retention | Controlled-clock visibility and expiry checks. |
 | Startup using one documented Docker Compose command after prerequisites and configuration | Clean supported installation and a controlled monitoring journey. |
 | Safe public demo | Isolation, quota, cleanup, destination and notification evidence from controlled fixtures. |
 
-These are targets. There are no implementation measurements in IP-003.
+These are targets. Implementation measurements are pending.
 
 ## Product Constraints
 
@@ -129,7 +130,7 @@ Self-hosting requires the approved runtime components. Telegram in MVP, email or
 
 ## Assumptions
 
-Workspace owners have authorization for monitored services. Suitable controlled targets can be made available for integration and performance verification. The reference performance environment, browser support and installation prerequisites are pending validation. The project name is a working name pending clearance.
+Workspace owners have authorization for monitored services. Suitable controlled targets can be made available for integration and performance verification. Browser support and installation prerequisites will be defined in later stages. The project name is a working name pending clearance.
 
 ## Risks
 
@@ -138,208 +139,148 @@ See the [risk register](../project/risk-register.md) for network abuse, cross-wo
 ## Release Acceptance Gates
 
 - **MVP.** Demonstrate approved authentication, workspace scope, target policy and create → check → incident → configured notification → recovery through the UI. Verify JWT use and refresh, manual execution, polling, single-monitor metrics, dark-only accessibility, mobile usability and retention. Verify required checks through executed GitHub Actions runs under [AC-057](acceptance-criteria.md#ac-057). Reproduce the approved measurement protocol and assess the baseline performance and coverage targets separately.
-- **Beta.** Verify integration behavior, new check types, scoped team and API authorization, published data boundaries, maintenance semantics, cross-window and cross-monitor comparisons, observable SSE and update recovery. Evaluate combined multi-monitor metrics only if approved under [Q-06](prd.md#q-06).
+- **Beta.** Verify integration behavior, new check types, scoped team and API authorization, published data boundaries, maintenance semantics, cross-window and cross-monitor comparisons, observable SSE and update recovery. Verify combined multi-monitor metrics under [Q-06](prd.md#q-06).
 - **v1.0.0.** Verify audit and report scope, operational telemetry, published repeatable integration and load evidence, documentation and interactive public demo containment and verified cleanup under the approved lifecycle policy.
-- **IP-004.** Owner validates the draft requirements, resolves or explicitly defers open questions, and records disposition. Stage 01 remains in progress.
+- **IP-004.** Owner reviews the finalized requirements and records acceptance before Stage 01 can close.
 
-## Open Questions
+## IP-004 Product Decisions
 
-All product questions require owner validation. Priority uses MoSCoW. Affected requirements include direct verification dependencies and contextual relationships. The [SRS dependency review](srs.md#open-requirements) records the distinction.
+The owner approved Q-01–Q-15 in IP-004. The [Decision Register](../project/decision-register.md#ip-004-product-decisions) records their disposition. Final acceptance of the documentation remains with the owner.
 
 <a id="q-01"></a>
-### Q-01 — Bootstrap, sessions and settings
+### Q-01 — Registration and authentication
 
-**PENDING** · Must · IP-004 product rules, Stage 02 mechanism. Affected requirements [FR-001](srs.md#fr-001), [FR-002](srs.md#fr-002), [FR-003](srs.md#fr-003), [FR-004](srs.md#fr-004), [FR-005](srs.md#fr-005), [FR-006](srs.md#fr-006), [FR-007](srs.md#fr-007), [FR-008](srs.md#fr-008), [FR-010](srs.md#fr-010).
+**APPROVED.** A protected one-time setup establishes the first Owner. Public registration is closed by default afterward and the Installation Operator can enable it. Sign-in uses email and password. Access JWTs last 15 minutes and refresh tokens last 7 days. Refresh rotates the token. Logout revokes the corresponding refresh session.
 
-**Proposal.** Use an operator-authorized one-time setup path and review editable account and workspace fields, account ownership, validation and signup feedback. Validate access-token and refresh-token lifetimes and session eligibility and sign-out policy in IP-004. JWT signing algorithm, token storage, refresh rotation, revocation mechanism and session persistence architecture belong to Stage 02.
+**Deferred.** Stage 02 defines the bootstrap mechanism, token storage and session implementation. Stage 03 defines the entry and approved settings surfaces. Stage 03 can propose editable account fields for separate owner approval before implementation.
 
-**Alternatives.** Operator-provisioned first account or one-time setup entry. Read-only settings until editable fields are approved.
-
-**Trade-offs.** Provisioning reduces public surface but adds operator work. A setup entry improves discovery but needs a secure initial access gate.
-
-**Impact if unresolved.** Full identity verification depends on bootstrap eligibility and token and session parameters. JWT issuance, use and refresh are part of the approved baseline.
+**Related requirements.** [FR-001](srs.md#fr-001), [FR-002](srs.md#fr-002), [FR-003](srs.md#fr-003), [FR-004](srs.md#fr-004), [FR-005](srs.md#fr-005), [FR-006](srs.md#fr-006), [FR-007](srs.md#fr-007), [FR-008](srs.md#fr-008), [FR-010](srs.md#fr-010)
 
 <a id="q-02"></a>
-### Q-02 — HTTP defaults and configuration bounds
+### Q-02 — HTTP monitor configuration
 
-**PROPOSED** · Must · IP-004. Affected requirements [FR-016](srs.md#fr-016), [FR-017](srs.md#fr-017), [FR-018](srs.md#fr-018), [FR-019](srs.md#fr-019), [FR-020](srs.md#fr-020), [FR-021](srs.md#fr-021).
+**APPROVED.** MVP supports GET and HEAD, default GET. The interval defaults to 60 seconds and ranges from 30 seconds to 24 hours. The timeout defaults to 10 seconds and ranges from 1 to 30 seconds, capped by the interval. Only 200–299 is successful. Redirect following is disabled and TLS certificate verification is mandatory. Destination policy applies to every supported connection path.
 
-**Proposal.** Use the listed HTTP defaults, 60-second interval, one-second step and 24-hour maximum. Validate timeout bounds and accepted status input form.
+**Deferred.** Configurable redirects are deferred to future releases. Stage 02 specifies connection handling within these constraints.
 
-**Alternatives.** Use an interval preset list or a different maximum. Require explicit target options on creation.
-
-**Trade-offs.** Fine-grained intervals suit diverse services but allow more scheduling configurations. Presets simplify validation but reduce flexibility.
-
-**Impact if unresolved.** Defaults and boundary tests remain conditional.
+**Related requirements.** [FR-016](srs.md#fr-016), [FR-017](srs.md#fr-017), [FR-018](srs.md#fr-018), [FR-019](srs.md#fr-019), [FR-020](srs.md#fr-020), [FR-021](srs.md#fr-021)
 
 <a id="q-03"></a>
-### Q-03 — Manual eligibility, collision and rate policy
+### Q-03 — Manual checks
 
-**PROPOSED** · Must · IP-004. Affected requirements [FR-023](srs.md#fr-023), [FR-024](srs.md#fr-024), [FR-025](srs.md#fr-025), [NFR-005](srs.md#nfr-005), [FR-026](srs.md#fr-026), [FR-027](srs.md#fr-027), [FR-028](srs.md#fr-028), [FR-029](srs.md#fr-029), [FR-061](srs.md#fr-061), [FR-062](srs.md#fr-062), [FR-063](srs.md#fr-063), [FR-064](srs.md#fr-064), [FR-015](srs.md#fr-015).
+**APPROVED.** Manual checks are diagnostic and unavailable while PAUSED. They do not overlap with another check of the same monitor or change the schedule. Completed results appear in history as Manual and do not affect uptime, aggregated latency, monitor state or automated incidents. Accept at most one manual run per monitor in 30 seconds.
 
-**Proposal.** Reject paused requests, show existing work on overlap, record a missed scheduled opportunity when a manual check takes its place, keep fixed cadence and exclude manual checks from scheduled metrics and incident evaluation. Define finite rate key, window and cap.
+**Deferred.** Stage 02 defines overlap handling and enforcement. Stage 03 defines feedback for ineligible or overlapping requests.
 
-**Alternatives.** Defer overlapping work or let manual checks advance incident and uptime counts. Apply per-monitor, per-user or per-workspace limits.
-
-**Trade-offs.** Keeping manual runs separate preserves scheduled comparability but immediate verification does not resolve an incident. Deferred execution may increase backlog. Scope of throttling affects fairness.
-
-**Impact if unresolved.** Throttling, run eligibility and manual metric and incident acceptance cannot be finalized.
+**Related requirements.** [FR-023](srs.md#fr-023), [FR-024](srs.md#fr-024), [FR-025](srs.md#fr-025), [NFR-005](srs.md#nfr-005), [FR-026](srs.md#fr-026), [FR-027](srs.md#fr-027), [FR-028](srs.md#fr-028), [FR-029](srs.md#fr-029), [FR-061](srs.md#fr-061), [FR-062](srs.md#fr-062), [FR-063](srs.md#fr-063), [FR-064](srs.md#fr-064), [FR-015](srs.md#fr-015)
 
 <a id="q-04"></a>
-### Q-04 — Incident sequences and monitor lifecycle
+### Q-04 — Monitor lifecycle and incidents
 
-**PROPOSED** · Must · IP-004. Affected requirements [FR-014](srs.md#fr-014), [FR-015](srs.md#fr-015), [FR-031](srs.md#fr-031), [FR-032](srs.md#fr-032), [FR-033](srs.md#fr-033), [FR-034](srs.md#fr-034), [FR-035](srs.md#fr-035), [FR-036](srs.md#fr-036), [FR-037](srs.md#fr-037).
+**APPROVED.** States are PENDING, UP, DOWN and PAUSED. Creation starts in PENDING and the first qualifying success of a new monitor sets UP. Configurable consecutive failure and recovery thresholds default to 3 and 2. Crossing the failure threshold sets DOWN and opens an incident. Confirmed recovery sets UP and closes it. Pause sets PAUSED and preserves an open incident. Resume sets PENDING and a retained incident closes only after confirmed recovery. Deletion closes an open incident as Monitor Deleted. Changing the checked address sets PENDING and closes the previous incident for configuration change. Pause and configuration edits reset streaks. Internal faults do not establish unavailability. Stale results cannot alter live state. A scheduled check cannot start while PAUSED, including one queued before pause.
 
-**Proposal.** Adopt the proposed transition table. Use positive integer thresholds and validate the upper bounds. Preserve an incident through pause and configuration changes. Archive open incident disposition on deletion and decide historical access.
+**Deferred.** Stage 02 defines ordering, concurrency and stale-result handling. Validate any additional lifecycle rules or threshold bounds with the owner before making them normative.
 
-**Alternatives.** Reset streaks on every gap, close incidents on pause or configuration change, or reconcile late state retroactively.
-
-**Trade-offs.** Ignoring excluded results keeps target evidence separate but spans observation gaps. Preserving incidents avoids false recovery but can keep an incident open longer.
-
-**Impact if unresolved.** Lifecycle, counter ordering, result class edges and configuration transition tests remain conditional.
+**Related requirements.** [FR-014](srs.md#fr-014), [FR-015](srs.md#fr-015), [FR-031](srs.md#fr-031), [FR-032](srs.md#fr-032), [FR-033](srs.md#fr-033), [FR-034](srs.md#fr-034), [FR-035](srs.md#fr-035), [FR-036](srs.md#fr-036), [FR-037](srs.md#fr-037), [FR-011](srs.md#fr-011)
 
 <a id="q-05"></a>
-### Q-05 — Notification defaults and delivery outcome
+### Q-05 — Notifications
 
-**PROPOSED** · Must · IP-004 product rules, Stage 02 delivery model. Affected requirements [FR-038](srs.md#fr-038), [FR-039](srs.md#fr-039), [NFR-007](srs.md#nfr-007), [FR-046](srs.md#fr-046), [FR-047](srs.md#fr-047), [FR-065](srs.md#fr-065).
+**APPROVED.** Telegram is the MVP channel. Incident Opened and Incident Resolved are enabled by default and delivery requires a configured, enabled channel. Manual Check Completed, Monitor Paused and Internal System Error notifications are outside MVP. Confirmed eligible delivery failures may have bounded retries. An indeterminate outcome must not trigger blind resending. Sequential replay and concurrent handling preserve one business effect for the same logical event and destination.
 
-**Proposal.** Enable opening and recovery notices by default when a channel is configured. Validate event preferences and retry eligibility for confirmed failures, and decide how to report and whether to retry indeterminate provider outcomes. The delivery model, retry count, intervals and backoff, guarantees and outbox choice remain for Stage 02.
+**Deferred.** Stage 02 defines the retry policy and deduplication mechanism. Confirmed-success receipt evidence is required under controlled conditions. Unconditional exactly-once delivery through the provider is outside the contract.
 
-**Alternatives.** Per-event opt-in, or retry fewer ambiguous failures.
-
-**Trade-offs.** Defaults improve visibility but may increase noise. Retrying ambiguous provider outcomes risks recipient duplicates.
-
-**Impact if unresolved.** Default-preference and delivery-edge verification remains conditional. The mandatory delivery test explicitly enables a permitted event in its fixture.
+**Related requirements.** [FR-038](srs.md#fr-038), [FR-039](srs.md#fr-039), [NFR-007](srs.md#nfr-007), [FR-046](srs.md#fr-046), [FR-047](srs.md#fr-047), [FR-065](srs.md#fr-065), [NFR-004](srs.md#nfr-004)
 
 <a id="q-06"></a>
-### Q-06 — Metric windows, latency and aggregation
+### Q-06 — Uptime and latency
 
-**PROPOSED** · Must · IP-004. Affected requirements [FR-028](srs.md#fr-028), [FR-052](srs.md#fr-052), [FR-061](srs.md#fr-061), [FR-062](srs.md#fr-062), [FR-063](srs.md#fr-063), [FR-064](srs.md#fr-064), [FR-066](srs.md#fr-066).
+**APPROVED.** Use UTC windows of 24h, 7d and 30d. Uptime is Successful / (Successful + Failed) × 100%, using valid scheduled checks. Target TIMEOUT counts as failed. Exclude internal errors, skipped checks, pauses and manual checks. Latency uses successful scheduled checks only, with average, nearest-rank p95 and nearest-rank p99. The minimum samples are 20 and 100 for p95 and p99 respectively. Show No data for an empty eligible sample. Beta aggregation pools valid observations across selected monitors.
 
-**Proposal.** Use the proposed UTC observation windows, rounding, nearest-rank percentiles and sample rules. Aggregate qualifying observations across selected eligible monitors in Beta.
+**Deferred.** Stage 02 defines exact window and measurement boundaries. Stage 03 defines presentation and rounding without changing eligibility or sample minimums.
 
-**Alternatives.** Use interpolated percentiles, minimum sample thresholds per quantile, or equal weighting per monitor.
-
-**Trade-offs.** Nearest-rank is reproducible but coarse for small samples. Observation weighting can favor frequently checked targets.
-
-**Impact if unresolved.** Exact analytics and cross-window comparisons cannot be validated.
+**Related requirements.** [FR-028](srs.md#fr-028), [FR-052](srs.md#fr-052), [FR-061](srs.md#fr-061), [FR-062](srs.md#fr-062), [FR-063](srs.md#fr-063), [FR-064](srs.md#fr-064), [FR-066](srs.md#fr-066)
 
 <a id="q-07"></a>
-### Q-07 — Beta role matrix and invitations
+### Q-07 — RBAC, workspaces and invitations
 
-**PROPOSED** · Must · IP-004. Affected requirements [FR-048](srs.md#fr-048), [FR-049](srs.md#fr-049), [FR-050](srs.md#fr-050), [FR-051](srs.md#fr-051), [FR-055](srs.md#fr-055).
+**APPROVED.** MVP uses Owner only. Beta uses Owner, Admin, Member and Viewer with the [approved permission matrix](srs.md#beta-authorization-matrix). Admin cannot alter Owner authority or appoint a new Owner. The last Owner cannot leave without transferring ownership. Invitations are single-use, last 7 days and can be revoked. Workspace isolation is mandatory in all releases.
 
-**Proposal.** Use the proposed role matrix, protect last-Owner continuity and validate invitation expiry, cancellation, expiry feedback and current membership enforcement.
+**Deferred.** Beta design specifies invitation and membership contracts and authorization for operations outside the approved matrix before implementation.
 
-**Alternatives.** Use fewer roles or reserve all membership operations to Owner.
-
-**Trade-offs.** Delegation suits teams but raises complexity and the risk of excess access.
-
-**Impact if unresolved.** Permission coverage and invitation abuse controls remain conditional.
+**Related requirements.** [FR-048](srs.md#fr-048), [FR-049](srs.md#fr-049), [FR-050](srs.md#fr-050), [FR-051](srs.md#fr-051), [FR-055](srs.md#fr-055), [FR-009](srs.md#fr-009), [NFR-001](srs.md#nfr-001)
 
 <a id="q-08"></a>
-### Q-08 — Retention boundaries and removal
+### Q-08 — Data retention
 
-**PROPOSED** · Must · IP-004 product rules, Stage 02 implementation. Affected requirements [FR-014](srs.md#fr-014), [NFR-006](srs.md#nfr-006), [FR-037](srs.md#fr-037).
+**APPROVED.** Check results expire 30 days from UTC check completion. Cleanup must finish within 24 hours of expiry. Deleting a monitor deletes its check history and preserves incident history. Incident history is retained until workspace deletion.
 
-**Proposal.** Anchor retention to UTC observation completion and make data at least 30 days old expire. Validate cleanup lag and deletion interaction.
+**Deferred.** Stage 02 defines the storage model, indexes, partitioning and cleanup mechanism.
 
-**Alternatives.** Use receipt time or calendar-day buckets.
-
-**Trade-offs.** Completion aligns with analysis but late results can arrive expired. Calendar-day buckets simplify explanation but vary effective age.
-
-**Impact if unresolved.** Retention boundary, user visibility and cleanup timing remain conditional.
+**Related requirements.** [FR-014](srs.md#fr-014), [NFR-006](srs.md#nfr-006), [FR-037](srs.md#fr-037)
 
 <a id="q-09"></a>
-### Q-09 — Additional check input and edge semantics
+### Q-09 — Additional monitor types
 
-**PROPOSED** · Must · IP-004. Affected requirements [FR-043](srs.md#fr-043), [FR-044](srs.md#fr-044), [FR-045](srs.md#fr-045), [FR-059](srs.md#fr-059), [FR-060](srs.md#fr-060), [NFR-022](srs.md#nfr-022).
+**APPROVED.** Beta adds TCP port reachability, TLS certificate validity and expiry, literal HTTP response keyword matching, and bounded declarative JSON assertions without user code. Malformed target JSON fails the check. Response size and computation are bounded.
 
-**Proposal.** Adopt the typed check proposals, cap input and response costs, and validate TLS time boundaries, literal matching, JSON assertion operators, whether malformed target JSON is classified as failure, and timeout classification.
+**Deferred.** Before Beta implementation, define exact limits, input rules, certificate threshold semantics and JSON comparison operators.
 
-**Alternatives.** Use exact literal-only JSON comparisons or support additional bounded declarative operators. Default TLS port or require it.
-
-**Trade-offs.** Minimal operators are easier to secure but cover fewer API contracts. Explicit ports reduce ambiguity at setup cost.
-
-**Impact if unresolved.** Beta invalid input, equality and response limits cannot be finalized.
+**Related requirements.** [FR-043](srs.md#fr-043), [FR-044](srs.md#fr-044), [FR-045](srs.md#fr-045), [FR-059](srs.md#fr-059), [FR-060](srs.md#fr-060), [NFR-022](srs.md#nfr-022)
 
 <a id="q-10"></a>
-### Q-10 — Installation destination policy detail
+### Q-10 — Network security and SSRF
 
-**PENDING** · Must · IP-004 product rules, Stage 02 threat model. Affected requirements [FR-010](srs.md#fr-010), [NFR-008](srs.md#nfr-008), [NFR-009](srs.md#nfr-009), [NFR-010](srs.md#nfr-010), [NFR-011](srs.md#nfr-011), [NFR-012](srs.md#nfr-012), [FR-047](srs.md#fr-047), [NFR-017](srs.md#nfr-017), [NFR-022](srs.md#nfr-022).
+**APPROVED.** Eligible public IPv4 and IPv6 are allowed. Private access is denied by default and the Installation Operator may allow eligible internal networks. Always-denied destinations, including loopback, link-local and cloud metadata, take precedence. Normalize IPv4-mapped IPv6 and reject the entire check for mixed eligible and denied DNS answers. Workspace Owners cannot bypass installation policy. MVP supports HTTP and HTTPS with ports 80 and 443 allowed by default. Additional ports require administrative configuration. The [destination rules](business-rules.md#destination-rules) and [AC-051](acceptance-criteria.md#ac-051) / [AC-052](acceptance-criteria.md#ac-052) apply.
 
-**Proposal.** Deny precedence is approved under PD-006. Validate exact allowlist matching, CIDR handling, eligibility, the complete sensitive-range classification, port restrictions, mixed DNS answers, redirect details and general rate policy using controlled fixtures. Egress filtering and DNS pinning choices belong to Stage 02.
+**Deferred.** Stage 02 defines DNS resolution, rebinding protection, egress enforcement, allowlist representation and installation-wide rate policy.
 
-**Alternatives.** Limit allowlisting to isolated host entries or permit approved bounded ranges. Reject any mixed DNS answer set or use only still-eligible answers.
-
-**Trade-offs.** Host entries reduce reachability but add maintenance. Mixed-answer rejection simplifies assurance but lowers availability.
-
-**Impact if unresolved.** Security-boundary verification and operator controls need a validated exact policy.
+**Related requirements.** [FR-010](srs.md#fr-010), [NFR-008](srs.md#nfr-008), [NFR-009](srs.md#nfr-009), [NFR-010](srs.md#nfr-010), [NFR-011](srs.md#nfr-011), [NFR-012](srs.md#nfr-012), [FR-047](srs.md#fr-047), [NFR-017](srs.md#nfr-017), [NFR-022](srs.md#nfr-022), [FR-035](srs.md#fr-035)
 
 <a id="q-11"></a>
-### Q-11 — Performance workload and coverage protocol
+### Q-11 — Performance and quality
 
-**PROPOSED** · Must · IP-004 protocol, Stage 07 execution. Affected requirements [NFR-023](srs.md#nfr-023), [NFR-024](srs.md#nfr-024), [NFR-025](srs.md#nfr-025), [NFR-026](srs.md#nfr-026), [NFR-032](srs.md#nfr-032), [NFR-033](srs.md#nfr-033).
+**APPROVED.** Baseline targets are 1,000 active monitors at 60 seconds, API p95 ≤ 200 ms excluding external check duration, API server error rate < 1%, scheduling delay p95 ≤ 5 seconds, backend line coverage ≥ 80% and 30 days of check-result retention. Reference workload uses 4 vCPU, 8 GB RAM, SSD, 20 concurrent API users, 5 minutes of warm-up and 30 minutes of measurement. The 1,000-monitor 30-second run is stress characterization. These are targets.
 
-**Proposal.** Use the proposed workload mix, client count and measurement periods. Approve reference environment, failure allowances, scheduling and backlog criteria, and coverage scope.
+**Deferred.** Stage 07 defines the reproducible protocol, endpoint list, request profile and coverage scope. Baseline and coverage attainment are reported as PASS, FAIL or INCOMPLETE using actual evidence.
 
-**Alternatives.** Use multiple representative hardware profiles or a single fixed reference environment. Use line and branch thresholds separately.
-
-**Trade-offs.** Multiple profiles improve capacity context but consume more effort. One fixed profile improves repeatability but limits extrapolation.
-
-**Impact if unresolved.** Targets remain unevaluated and release comparison lacks fixed methodology.
+**Related requirements.** [NFR-023](srs.md#nfr-023), [NFR-024](srs.md#nfr-024), [NFR-025](srs.md#nfr-025), [NFR-026](srs.md#nfr-026), [NFR-032](srs.md#nfr-032), [NFR-033](srs.md#nfr-033), [NFR-006](srs.md#nfr-006)
 
 <a id="q-12"></a>
-### Q-12 — Update cadence and freshness
+### Q-12 — Data freshness
 
-**PENDING** · Should · IP-004 product tolerance, Stage 03 UX. Affected requirements [FR-041](srs.md#fr-041), [FR-042](srs.md#fr-042), [NFR-031](srs.md#nfr-031).
+**APPROVED.** MVP uses HTTP polling every 10 seconds on the [mandatory screens](user-flows.md#mvp-polling-scope). Indicate stale data after 30 seconds without a successful refresh, support manual refresh and resume automatically when connectivity returns. Beta uses SSE.
 
-**Proposal.** Validate the accepted refresh delay, stale threshold, reconnect expectations and polling behavior for inactive tabs.
+**Deferred.** Stage 02 and Stage 03 define transport and display details, including Beta reconnect policy and freshness presentation.
 
-**Alternatives.** Use user-triggered refresh during outages or continue bounded automatic refresh.
-
-**Trade-offs.** Faster updates improve freshness but increase background traffic.
-
-**Impact if unresolved.** Mechanism-level verification can observe polling and SSE. Full freshness and reconnect verification depends on approved cadence, delay tolerances and operating details, including fallback behavior.
+**Related requirements.** [FR-041](srs.md#fr-041), [FR-042](srs.md#fr-042), [NFR-031](srs.md#nfr-031)
 
 <a id="q-13"></a>
-### Q-13 — Demo surfaces, limits and cleanup
+### Q-13 — Interactive demo
 
-**PENDING** · Must · IP-004 policy, Stage 03 UX. Affected requirements [FR-058](srs.md#fr-058), [NFR-017](srs.md#nfr-017), [NFR-018](srs.md#nfr-018), [NFR-019](srs.md#nfr-019).
+**APPROVED.** v1.0.0 provides registration-free isolated temporary workspaces with controlled HTTP services. Visitors can create monitors and observe incidents open and resolve. Limit sessions to 5 monitors and 60 minutes. Complete actual cleanup within 15 minutes after session termination. Arbitrary external destinations and real notification delivery are prohibited.
 
-**Proposal.** Reuse existing monitoring screens for synthetic workflows and propose an entry and reset surface or automatic expiry. Validate quotas, session duration, reset or expiry triggers, data in scope, cleanup deadline, deletion or another explicitly approved cleanup method, and allowed simulated notifications.
+**Deferred.** v1.0.0 design defines session isolation and cleanup implementation before development. Stage 03 defines entry, expiry and reset UX.
 
-**Alternatives.** Use a shared read-only tour plus isolated interactive sessions, or isolated sessions alone.
-
-**Trade-offs.** Reuse limits UI effort. Visible reset improves clarity. Automatic cleanup limits exposure but may interrupt a visitor.
-
-**Impact if unresolved.** Demo entry and reset screen coverage and full quota and lifecycle acceptance cannot be closed. Access denial alone is insufficient evidence of cleanup.
+**Related requirements.** [FR-058](srs.md#fr-058), [NFR-017](srs.md#nfr-017), [NFR-018](srs.md#nfr-018), [NFR-019](srs.md#nfr-019)
 
 <a id="q-14"></a>
-### Q-14 — Responsive and accessibility verification
+### Q-14 — Accessibility and responsive design
 
-**PENDING** · Must · IP-004 verification baseline, Stage 03 layouts. Affected requirements [NFR-027](srs.md#nfr-027), [NFR-028](srs.md#nfr-028), [NFR-029](srs.md#nfr-029).
+**APPROVED.** Use Dark Only, English UI and desktop-first responsive design supporting principal operations on mobile. Target WCAG 2.2 AA. Provide keyboard navigation, visible focus and non-color status cues. Representative widths are 360, 768, 1024 and 1440 px.
 
-**Proposal.** Validate a contrast and keyboard verification baseline and representative mobile and desktop test viewports. Define concrete layout and breakpoints in Stage 03.
+**Deferred.** Stage 03 defines layouts, breakpoints, supported browser coverage and implementation details.
 
-**Alternatives.** Test a broader device matrix or a minimal supported set.
-
-**Trade-offs.** More devices improve confidence but increase review cost. A minimal set leaves more rendering uncertainty.
-
-**Impact if unresolved.** Dark-only behavior is testable now as a specification. Exact contrast and responsive evidence remains undefined.
+**Related requirements.** [NFR-027](srs.md#nfr-027), [NFR-028](srs.md#nfr-028), [NFR-029](srs.md#nfr-029)
 
 <a id="q-15"></a>
-### Q-15 — Baseline Beta and release feature details
+### Q-15 — Beta and release contracts
 
-**PENDING** · Should · IP-004 product behavior, Stage 02 contracts. Affected requirements [FR-053](srs.md#fr-053), [FR-054](srs.md#fr-054), [FR-055](srs.md#fr-055), [FR-056](srs.md#fr-056), [NFR-016](srs.md#nfr-016), [FR-057](srs.md#fr-057).
+**APPROVED.** Beta public status pages expose status, uptime and public incidents for selected monitors. Beta API keys have limited permissions, expiry and revocation. During Beta maintenance windows, scheduled checks continue, notifications are suppressed and maintenance observations are excluded from uptime. v1.0.0 audit records contain actor, action, resource, timestamp and outcome. Reports export CSV. Operational visibility uses Prometheus and Grafana.
 
-**Proposal.** Validate public status fields, API key scopes and expiry, maintenance boundaries and effects on incidents, availability and latency, auditable events, operational signal set and export formats.
+**Deferred.** Before implementation of the applicable release, define detailed API and event contracts, storage rules and data models. Maintenance effects on latency and incident processing require separate owner validation.
 
-**Alternatives.** Adopt a minimal field set and expand after release, or broaden supported fields after owner review.
-
-**Trade-offs.** Minimal exposure protects sensitive data and reduces validation effort but limits reporting and automation flexibility.
-
-**Impact if unresolved.** Detailed gates remain conditional. The effect of maintenance windows on availability and latency remains an explicit traceability gap until the owner approves a rule.
+**Related requirements.** [FR-053](srs.md#fr-053), [FR-054](srs.md#fr-054), [FR-055](srs.md#fr-055), [FR-056](srs.md#fr-056), [NFR-016](srs.md#nfr-016), [FR-057](srs.md#fr-057)
 
 ## References
 

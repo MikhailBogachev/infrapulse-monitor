@@ -33,7 +33,7 @@ Under D-009, repository documentation is the primary source of project context. 
 
 **Scope.** Continuous integration, automated quality checks and tests within approved MVP scope, and observable GitHub Actions execution. Other technology candidates keep their recorded dispositions.
 
-**Deferred implementation details.** Workflow structure, job decomposition, triggers, runner operating systems and architectures, dependency caching, matrices, branch protection, required check names, artifact retention, deployment workflows, release automation, and versions of actions and quality or test tools remain unapproved. Measurement parameters remain open under [Q-11](../product/prd.md#q-11).
+**Deferred implementation details.** Workflow structure, job decomposition, triggers, runner operating systems and architectures, dependency caching, matrices, branch protection, required check names, artifact retention, deployment workflows, release automation, and versions of actions and quality or test tools remain unapproved. The detailed Stage 07 measurement protocol is deferred under [Q-11](../product/prd.md#q-11).
 
 **Related decisions and requirements.** [D-005](#d-005), [D-007](#d-007), [F-012](../product/prd.md#f-012), [NFR-015](../product/srs.md#nfr-015), [AC-057](../product/acceptance-criteria.md#ac-057).
 
@@ -53,18 +53,18 @@ Resolve these through subsequent stage gates and ADRs.
 
 ## Approved Product Decisions
 
-IP-002 is approved. The product owner approved the following scope decisions for IP-003. Derived requirements await validation in IP-004. Values explicitly identified as proposed remain open.
+IP-002 is approved. The product owner approved the following scope decisions for IP-003. The approved IP-004 decisions below resolve the product parameters and preserve the approved feature boundaries.
 
-| ID | Title | Release | Status | Approved scope and proposal boundaries |
+| ID | Title | Release | Status | Approved scope |
 |---|---|---|---|---|
 | <a id="pd-001"></a> PD-001 | Configurable Registration | MVP; invitations in Beta | APPROVED | The installation operator can enable or disable public registration. Public signup is disabled by default after initial setup. The first account has a separate operator-authorized bootstrap path. Workspace ownership does not confer installation authority. Team invitations are Beta. |
-| <a id="pd-002"></a> PD-002 | HTTP Methods | MVP | APPROVED | HTTP and HTTPS monitors accept GET and HEAD. POST, PUT, PATCH, DELETE and arbitrary request bodies are outside MVP. GET is the proposed default. |
-| <a id="pd-003"></a> PD-003 | Monitoring Interval | MVP | APPROVED | The configurable minimum interval is 30 seconds. The proposed default is 60 seconds. A 30-second interval for all 1,000 monitors carries no performance guarantee. |
+| <a id="pd-002"></a> PD-002 | HTTP Methods | MVP | APPROVED | HTTP and HTTPS monitors accept GET and HEAD. POST, PUT, PATCH, DELETE and arbitrary request bodies are outside MVP. GET is the default. |
+| <a id="pd-003"></a> PD-003 | Monitoring Interval | MVP | APPROVED | The configurable minimum interval is 30 seconds. The default is 60 seconds. A 30-second interval for all 1,000 monitors carries no performance guarantee. |
 | <a id="pd-004"></a> PD-004 | Incident Thresholds | MVP | APPROVED | Configurable opening and recovery thresholds default to three consecutive qualifying failures and two consecutive qualifying successes respectively. Internal platform faults do not establish target unavailability. |
-| <a id="pd-005"></a> PD-005 | Manual Monitor Execution | MVP | APPROVED | Run Check Now is authorized, rate-limited, asynchronous, duplicate-safe, visible to the requester and retained in history. Its lifecycle, scheduling and metric eligibility details require validation. |
-| <a id="pd-006"></a> PD-006 | Network Security and SSRF | MVP baseline; inherited later | APPROVED | Eligible public HTTP and HTTPS targets are permitted. Private access is denied by default and only the installation operator may allow explicitly selected eligible internal destinations. Always-denied sensitive targets remain blocked. Apply policy to all actual connections and redirects, DNS and both address families. Protect credentials and restrict the demo to controlled targets. |
-| <a id="pd-007"></a> PD-007 | Workspace Authorization | MVP and Beta | APPROVED | MVP isolates workspaces and provides scoped Owner authority. Beta adds invitations, membership management and role-based authorization. Owner, Admin, Member and Viewer permissions are candidates. Installation authority is separate. |
-| <a id="pd-008"></a> PD-008 | UI Data Updates | MVP and Beta | APPROVED | MVP uses polling and Beta uses Server-Sent Events. Views distinguish loading, stale data, failed refresh and recovery. Refresh intervals and live-update operating details require validation. |
+| <a id="pd-005"></a> PD-005 | Manual Monitor Execution | MVP | APPROVED | Run Check Now is authorized, rate-limited, asynchronous, duplicate-safe, visible to the requester and retained in history. Q-03 establishes eligibility, cadence, metric exclusions and rate. |
+| <a id="pd-006"></a> PD-006 | Network Security and SSRF | MVP baseline; inherited later | APPROVED | Eligible public HTTP and HTTPS targets are permitted. Private access is denied by default and only the installation operator may allow explicitly selected eligible internal destinations. Always-denied sensitive targets remain blocked. Apply policy to all actual connections across both address families, including DNS-based paths and redirect hops where supported. Protect credentials and restrict the demo to controlled targets. |
+| <a id="pd-007"></a> PD-007 | Workspace Authorization | MVP and Beta | APPROVED | MVP isolates workspaces and provides scoped Owner authority. Beta adds invitations, membership management and role-based authorization. Q-07 approves the Owner, Admin, Member and Viewer matrix. Installation authority is separate. |
+| <a id="pd-008"></a> PD-008 | UI Data Updates | MVP and Beta | APPROVED | MVP uses polling and Beta uses Server-Sent Events. Views distinguish loading, stale data, failed refresh and recovery. Q-12 approves MVP refresh and stale timing. |
 | <a id="pd-009"></a> PD-009 | Additional Monitoring Types | Beta | APPROVED | Beta adds TCP, certificate expiry, HTTP keyword and JSON assertion monitoring. HTTP and HTTPS remain in MVP. User scripts, executable expressions, DNS, ICMP and heartbeat monitoring are outside scope. |
 | <a id="pd-010"></a> PD-010 | Interactive Isolated Demo | v1.0.0 | APPROVED | The public demo is interactive and isolated, uses controlled synthetic targets, restricts network access, bounds resources, prevents scanning and real notification delivery, and has a reset and cleanup lifecycle. |
 | <a id="pd-011"></a> PD-011 | Uptime and Latency | MVP and Beta | APPROVED | Uptime is qualifying successes divided by qualifying completed checks. Qualifying target failures and timeouts enter the denominator. Platform errors, skipped work, pauses and missing observations are distinguishable from unavailability. Latency uses qualifying successes. MVP includes basic metrics and Beta adds analytics. |
@@ -73,18 +73,27 @@ IP-002 is approved. The product owner approved the following scope decisions for
 | <a id="pd-014"></a> PD-014 | Responsive Interface | MVP; inherited later | APPROVED | Use a desktop-first responsive web interface, preserving principal navigation, dashboard, monitor, incident and account journeys on mobile. Stage 03 defines breakpoints and layouts. Native mobile apps are outside scope. |
 | <a id="pd-015"></a> PD-015 | English Language | MVP; inherited later | APPROVED | UI, repository documentation, source identifiers, technical messages and source comments use English. Discussions, Codex CLI tasks and Codex reports use Russian. Localization and multilingual UI are outside scope. |
 
-## Product Discovery disposition
+## IP-004 Product Decisions
 
-| Topic | Disposition | Pending details |
-|---|---|---|
-| Manual execution | Approved for MVP | Rate policy, collisions, paused behavior and calculation eligibility. |
-| Incident and recovery thresholds | Configurability and 3/2 defaults resolved | Range, streak ordering and lifecycle edge cases. |
-| Network targets and SSRF | Restrictive installation policy resolved | Exact classification, allowlist and port edges. |
-| Workspace authorization | MVP ownership and Beta role-based scope resolved | Beta permissions, invitation and membership lifecycle. |
-| Performance measurement | Targets and capacity distinction resolved | Reference workload, environment, coverage and pass inputs. |
-| Uptime and latency | Observation eligibility and basic formulas resolved | Time windows, estimator, sample sizes, rounding and aggregation. |
+Approval source: explicit project-owner approval in the IP-004 task. The linked PRD entries record the approved behavior and deferred design details. The product documentation is ready for final owner acceptance.
 
-Other pending product matters include bootstrap, HTTP defaults, retention boundaries, notification behavior, refresh tolerances, accessibility evidence, typed check details, Beta and release feature details and the demo lifecycle. The [PRD open questions](../product/prd.md#open-questions) record the owner validation agenda.
+| ID | Decision | Release | Status | Scope sources |
+|---|---|---|---|---|
+| [Q-01](../product/prd.md#q-01) | Registration and authentication | MVP | APPROVED | [PD-001](#pd-001) |
+| [Q-02](../product/prd.md#q-02) | HTTP monitor configuration | MVP | APPROVED | [PD-002](#pd-002), [PD-003](#pd-003) |
+| [Q-03](../product/prd.md#q-03) | Manual checks | MVP | APPROVED | [PD-005](#pd-005) |
+| [Q-04](../product/prd.md#q-04) | Monitor lifecycle and incidents | MVP | APPROVED | [PD-004](#pd-004) |
+| [Q-05](../product/prd.md#q-05) | Notifications | MVP | APPROVED | [D-005](#d-005) |
+| [Q-06](../product/prd.md#q-06) | Uptime and latency | MVP; Beta aggregation | APPROVED | [PD-011](#pd-011) |
+| [Q-07](../product/prd.md#q-07) | RBAC, workspaces and invitations | MVP and Beta | APPROVED | [PD-001](#pd-001), [PD-007](#pd-007) |
+| [Q-08](../product/prd.md#q-08) | Data retention | MVP baseline | APPROVED | [D-005](#d-005), [PD-012](#pd-012) |
+| [Q-09](../product/prd.md#q-09) | Additional monitor types | Beta | APPROVED | [PD-009](#pd-009) |
+| [Q-10](../product/prd.md#q-10) | Network security and SSRF | MVP baseline; inherited later | APPROVED | [PD-006](#pd-006) |
+| [Q-11](../product/prd.md#q-11) | Performance and quality | MVP targets; v1.0.0 release evidence | APPROVED | [PD-012](#pd-012) |
+| [Q-12](../product/prd.md#q-12) | Data freshness | MVP and Beta | APPROVED | [PD-008](#pd-008) |
+| [Q-13](../product/prd.md#q-13) | Interactive demo | v1.0.0 | APPROVED | [PD-006](#pd-006), [PD-010](#pd-010) |
+| [Q-14](../product/prd.md#q-14) | Accessibility and responsive design | MVP; inherited later | APPROVED | [PD-013](#pd-013), [PD-014](#pd-014), [PD-015](#pd-015) |
+| [Q-15](../product/prd.md#q-15) | Beta and release contracts | Beta and v1.0.0 | APPROVED | [D-005](#d-005) |
 
 ## Other pending decisions
 

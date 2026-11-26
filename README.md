@@ -4,17 +4,13 @@ Open-source, self-hosted infrastructure and API monitoring platform with a web i
 ## Project status
 
 - Stage 00 — Project Initialization is approved and complete.
-- Stage 01 — Product Discovery is in progress.
+- Stage 01 — Product Discovery is IN PROGRESS until final owner acceptance.
 - Stage 02 — System Design is pending.
 - IP-000 — Project Context Initialization is accepted.
 - IP-001 — Project Initialization Baseline Corrections is complete and merged.
 - IP-002 — Product Discovery Decision Review is approved.
-- IP-003 — Product Requirements Documentation was merged in PR #2 with unresolved findings. Final Reviews R1 and R2 required corrections.
-- IP-003-R1 — Review corrections are complete in the working tree.
-- IP-003-R2 — Targeted review corrections are complete. Independent Final Review R3 failed.
-- IP-003-R3 — Targeted acceptance criteria corrections were reviewed in Final Review R4, which identified REV-010 as the remaining blocker.
-- IP-003-R4 — REV-010 correction is complete in the working tree, pending owner review. The nine product documents remain draft pending validation.
-- IP-004 — Product Requirements Validation is pending owner review.
+- IP-003 — Product Requirements Documentation is COMPLETED AND MERGED.
+- IP-004 — Product Requirements Finalization is READY FOR OWNER APPROVAL.
 - Application implementation has not started.
 
 ## Project documentation
@@ -26,9 +22,9 @@ Open-source, self-hosted infrastructure and API monitoring platform with a web i
 - [Development Workflow](docs/development/workflow.md)
 - [Agent Instructions](AGENTS.md)
 
-## Product Discovery drafts
+## Product Discovery documentation
 
-All drafts are version 0.1 and pending IP-004 validation.
+Product documentation version 0.2 is ready for final owner acceptance. [Q-01–Q-15](docs/project/decision-register.md#ip-004-product-decisions) are approved.
 
 - [Product Requirements Document](docs/product/prd.md)
 - [Software Requirements Specification](docs/product/srs.md)
