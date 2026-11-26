@@ -2,12 +2,12 @@
 
 | Field | Value |
 |---|---|
-| Document Status | DRAFT — PENDING VALIDATION |
-| Version | 0.1 |
+| Document Status | READY FOR OWNER APPROVAL |
+| Version | 0.2 |
 | Responsible Role | Product Analyst |
 | Related Project Stage | Stage 01 — Product Discovery |
-| Project Task | IP-003 |
-| Validation | IP-004, pending owner review |
+| Project Task | IP-004 |
+| Validation | IP-004, final owner acceptance pending |
 
 These profiles are representative models based on product assumptions. No interviews, surveys, market measurements or representative samples were collected for IP-003.
 

@@ -42,8 +42,8 @@ Dependency versions, database schema, worker concurrency and execution model, pa
 
 ## Success targets (not measured results)
 - 1,000 active monitors at 60-second intervals; approximately 16.7 checks/s on average.
-- API p95 at most 200 ms for defined typical endpoints under an approved documented workload.
-- Backend coverage target: at least 80%; critical paths require meaningful tests.
+- API p95 at most 200 ms excluding external check duration, API server error rate below 1%, and scheduling delay p95 at most 5 seconds under the approved baseline.
+- Backend line coverage target is at least 80%. Critical paths require meaningful tests.
 - Initial check history retention is 30 days, equivalent to approximately 43.2 million results at full baseline load.
 - The 30-second run with 1,000 monitors is a capacity stress scenario under PD-012. The [measurement protocol](../product/srs.md#performance-measurement-protocol) separates this scenario from baseline targets.
 - Local startup with one documented Docker Compose command after prerequisites/configuration.

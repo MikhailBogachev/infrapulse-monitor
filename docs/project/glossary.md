@@ -10,18 +10,18 @@ ID: IP-DOC-004 | Version: 1.0 | Status: Active
 | Check execution | One logical scheduled or on-demand attempt to observe a monitored target. Delivery and processing retries can refer to the same execution. |
 | Manual Check | An authorized asynchronous, rate-limited check requested through Run Check Now. |
 | Check result | A recorded outcome of one execution with its timing, origin and safe diagnostic evidence. |
-| Monitor State | Live summary of a monitor's condition or lifecycle. The candidate states are PENDING, UP, DOWN and PAUSED. |
+| Monitor State | Live summary of a monitor's condition or lifecycle. The states are PENDING, UP, DOWN and PAUSED. |
 | Incident | A recorded period of confirmed target unavailability that begins when the configured qualifying failure threshold is reached. |
 | Recovery | Confirmed return to a healthy state when an active incident reaches its qualifying success threshold. |
 | Uptime | Percentage of qualifying completed checks that succeeded in a defined observation window. Qualifying target failures and target timeouts enter the denominator. Excluded or absent observations are shown separately. |
-| Latency | Duration of a qualifying successful check for product metrics. Timing boundaries and aggregation conventions await validation. |
-| Polling | Browser-initiated periodic requests for updated data, used in MVP. |
+| Latency | Duration of a qualifying successful scheduled check. Metrics include average and nearest-rank p95 and p99 subject to their sample minimums. |
+| Polling | Browser-initiated HTTP requests for current data every 10 seconds on the designated MVP screens. |
 | Server-Sent Events | Server-originated browser event stream used for Beta live updates. |
 | Scheduler | Process identifying due checks and dispatching work. |
 | Broker | RabbitMQ transport for task messages. |
 | Worker | Process consuming and executing background tasks. |
 | Idempotency | Repeated processing of the same logical operation does not duplicate its business effects. |
-| Retry | Bounded reattempt after a transient failure. |
+| Retry | Bounded reattempt after an eligible confirmed failure. |
 | Outbox | Durable database record of events awaiting publication. |
 | SSRF | Server-side request forgery: abuse of server-originated requests to reach unintended destinations. |
 | RBAC | Role-based access control. |
