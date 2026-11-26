@@ -7,7 +7,18 @@ Repository documentation is the primary source of project context. Before work, 
 - Stage 01 — Product Discovery is in progress.
 - Stage 02 — System Design is pending.
 - IP-000 — Project Context Initialization is accepted.
-- Application implementation has not started. Do not implement application code until the owner authorizes implementation tasks.
+- IP-001 — Project Initialization Baseline Corrections is complete and merged.
+- IP-002 — Product Discovery Decision Review is approved.
+- IP-003 — Product Requirements Documentation is the current task. The product documents are drafted and pending validation.
+- IP-004 — Product Requirements Validation is pending owner review.
+- Application implementation has not started. Explicit owner authorization is required before implementation.
+
+## Product requirements
+
+- Read [approved product decisions PD-001–PD-015](docs/project/decision-register.md#approved-product-decisions) for Stage 01 scope.
+- Use the [PRD](docs/product/prd.md) for scope and catalog, the [SRS](docs/product/srs.md) for normative requirements and the [Acceptance Criteria](docs/product/acceptance-criteria.md) for expected evidence. The product documents are DRAFT — PENDING VALIDATION.
+- Preserve feature IDs and release assignments. Trace requirements to their sources, verification methods and acceptance criteria in the [Requirements Traceability Matrix](docs/product/requirements-traceability-matrix.md). Link applicable stories, rules, flows and screens. Record exceptions and gaps.
+- Keep proposals and pending questions distinct from approved scope. Owner validation in IP-004 is pending.
 
 ## Codex CLI
 - Use Codex CLI as the current development assistant interface.
