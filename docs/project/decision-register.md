@@ -17,6 +17,26 @@ ID: IP-DOC-006 | Version: 1.0 | Status: Active
 
 Under D-009, repository documentation is the primary source of project context. Codex CLI uses the read-only sandbox for analysis and the workspace-write sandbox for approved edits. Task scope changes require human approval. Commits and merges require prior human review. Automatic pushes to remote repositories are prohibited. See the [development workflow](../development/workflow.md).
 
+## Approved technology decisions after Stage 00
+
+| ID | Title | Status | Decision owner | Target release |
+|---|---|---|---|---|
+| <a id="d-010"></a> D-010 | GitHub Actions for MVP CI | APPROVED | Project owner | MVP v0.1.0 |
+
+**Context.** [D-005](#d-005) established CI as part of MVP. GitHub Actions entered Stage 00 as a technology candidate.
+
+**Decision.** GitHub Actions is required for InfraPulse MVP CI. Execute the required MVP automated tests and quality checks in GitHub Actions and use verifiable execution results as acceptance evidence.
+
+**Approval source.** The project owner explicitly approved the platform in IP-003-R2.
+
+**Rationale.** Selecting a platform gives reviewers a single required source of CI execution evidence and aligns with the GitHub Flow established in [D-007](#d-007).
+
+**Scope.** Continuous integration, automated quality checks and tests within approved MVP scope, and observable GitHub Actions execution. Other technology candidates keep their recorded dispositions.
+
+**Deferred implementation details.** Workflow structure, job decomposition, triggers, runner operating systems and architectures, dependency caching, matrices, branch protection, required check names, artifact retention, deployment workflows, release automation, and versions of actions and quality or test tools remain unapproved. Measurement parameters remain open under [Q-11](../product/prd.md#q-11).
+
+**Related decisions and requirements.** [D-005](#d-005), [D-007](#d-007), [F-012](../product/prd.md#f-012), [NFR-015](../product/srs.md#nfr-015), [AC-057](../product/acceptance-criteria.md#ac-057).
+
 ## Proposed technology candidates
 
 The [charter's candidate list](charter.md#proposed-technology-candidates) records technologies proposed for evaluation at later stage gates.
