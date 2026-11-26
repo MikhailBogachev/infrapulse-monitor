@@ -1,7 +1,13 @@
 # InfraPulse
 Self-hosted infrastructure and API monitoring platform.
 
-**Status:** planning; Stage 00 approved. No runnable application yet.
+## Project status
+
+- Stage 00 — Project Initialization is approved and complete.
+- Stage 01 — Product Discovery is in progress.
+- Stage 02 — System Design is pending.
+- IP-000 — Project Context Initialization is accepted.
+- Application implementation has not started.
 
 ## Project documentation
 - [Project Charter](docs/project/charter.md)
@@ -12,4 +18,4 @@ Self-hosted infrastructure and API monitoring platform.
 - [Development Workflow](docs/development/workflow.md)
 - [Agent Instructions](AGENTS.md)
 
-Next: Stage 01 — Product Discovery. InfraPulse is a working name; trademark clearance is not established. Intended license: MIT (license text pending setup).
+InfraPulse is a working name; trademark clearance is not established. Intended license: MIT (license text pending setup).
