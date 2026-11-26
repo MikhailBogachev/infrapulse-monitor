@@ -78,11 +78,11 @@ As a Workspace Owner, I want to create, inspect, edit, pause, resume and delete 
 | Release | v0.1.0 MVP |
 | Priority | Must |
 | Features | [F-003](prd.md#f-003) |
-| Functional requirements | [FR-011](srs.md#fr-011), [FR-012](srs.md#fr-012), [FR-013](srs.md#fr-013), [FR-014](srs.md#fr-014), [FR-015](srs.md#fr-015) |
+| Functional requirements | [FR-011](srs.md#fr-011), [FR-012](srs.md#fr-012), [FR-013](srs.md#fr-013), [FR-014](srs.md#fr-014), [FR-015](srs.md#fr-015), [FR-036](srs.md#fr-036) |
 | Other requirements | — |
 | Business rules | [BR-006](business-rules.md#br-006), [BR-009](business-rules.md#br-009), [BR-012](business-rules.md#br-012), [BR-019](business-rules.md#br-019), [BR-020](business-rules.md#br-020) |
-| Acceptance criteria | [AC-012](acceptance-criteria.md#ac-012), [AC-013](acceptance-criteria.md#ac-013), [AC-014](acceptance-criteria.md#ac-014), [AC-015](acceptance-criteria.md#ac-015), [AC-016](acceptance-criteria.md#ac-016) |
-| Dependencies | [F-002](prd.md#f-002). PAUSED prevents both new scheduled execution and manual execution. |
+| Acceptance criteria | [AC-012](acceptance-criteria.md#ac-012), [AC-013](acceptance-criteria.md#ac-013), [AC-014](acceptance-criteria.md#ac-014), [AC-015](acceptance-criteria.md#ac-015), [AC-016](acceptance-criteria.md#ac-016), [AC-042](acceptance-criteria.md#ac-042) |
+| Dependencies | [F-002](prd.md#f-002). PAUSED prevents both new scheduled execution and manual execution. [PD-016](../project/decision-register.md#pd-016) preserves pause when the checked URL changes. |
 | Status | READY FOR OWNER APPROVAL |
 
 <a id="us-005"></a>

@@ -33,7 +33,7 @@ APPROVED identifies explicit product decisions. READY FOR OWNER APPROVAL identif
 | <a id="br-016"></a> BR-016 | Consecutive Threshold Semantics | APPROVED | Only qualifying scheduled results contribute to failure and recovery thresholds. Pause and configuration changes reset streaks. Ordering and other eligibility boundaries are deferred to Stage 02. | [FR-028](srs.md#fr-028), [FR-031](srs.md#fr-031), [FR-032](srs.md#fr-032), [FR-033](srs.md#fr-033), [FR-034](srs.md#fr-034), [FR-035](srs.md#fr-035), [FR-036](srs.md#fr-036), [FR-037](srs.md#fr-037) |
 | <a id="br-017"></a> BR-017 | Notification Triggering | APPROVED | Telegram Incident Opened and Incident Resolved are enabled by default and require a configured, enabled channel. Manual Check Completed, Monitor Paused and Internal System Error notifications are outside MVP. Deletion and address changes do not establish recovery. | [FR-032](srs.md#fr-032), [FR-033](srs.md#fr-033), [FR-038](srs.md#fr-038), [FR-039](srs.md#fr-039), [NFR-007](srs.md#nfr-007), [FR-046](srs.md#fr-046), [FR-047](srs.md#fr-047), [FR-065](srs.md#fr-065) |
 | <a id="br-018"></a> BR-018 | Notification Deduplication | APPROVED | Preserve one business notification trigger per effective transition and destination across sequential replay and concurrent processing. For a determinate successful provider outcome, concurrent processing yields one receipt and replay after confirmed receipt yields no additional notification. Observe confirmed failures independently of incident state. Eligible confirmed failures may be retried within a bounded budget for the original logical event. Indeterminate outcomes must not be blindly resent. | [NFR-004](srs.md#nfr-004), [FR-039](srs.md#fr-039), [NFR-007](srs.md#nfr-007), [FR-065](srs.md#fr-065) |
-| <a id="br-019"></a> BR-019 | Pause and Resume | APPROVED | Pause enters PAUSED, resets streaks and preserves any open incident. No recurring target check starts while paused, including a pre-queued check, and manual execution is unavailable. Resume enters PENDING, and an incident retained across pause closes only on confirmed recovery. | [FR-015](srs.md#fr-015), [FR-027](srs.md#fr-027), [FR-036](srs.md#fr-036), [FR-063](srs.md#fr-063) |
+| <a id="br-019"></a> BR-019 | Pause and Resume | APPROVED | Pause enters PAUSED, resets streaks and preserves any open incident. No recurring target check starts while paused, including a pre-queued check, and manual execution is unavailable. A checked URL edit preserves PAUSED under [PD-016](../project/decision-register.md#pd-016) and applies the [lifecycle effects](#monitor-lifecycle). Resume enters PENDING, and an incident retained across pause closes only on confirmed recovery. | [FR-015](srs.md#fr-015), [FR-027](srs.md#fr-027), [FR-036](srs.md#fr-036), [FR-063](srs.md#fr-063) |
 | <a id="br-020"></a> BR-020 | Monitor Deletion | APPROVED | Deletion prevents new work, removes check history and closes any open incident as Monitor Deleted. Incident history remains until workspace deletion. | [FR-014](srs.md#fr-014), [FR-036](srs.md#fr-036), [FR-037](srs.md#fr-037) |
 | <a id="br-021"></a> BR-021 | Late and Out-of-order Results | APPROVED | Stale results cannot change live state or incident decisions. Eligible history remains subject to retention and authorized removal. Classifying and ordering stale or concurrent work belongs to Stage 02. | [NFR-004](srs.md#nfr-004), [FR-036](srs.md#fr-036), [FR-037](srs.md#fr-037) |
 | <a id="br-022"></a> BR-022 | Network Security | APPROVED | Use eligible public IPv4 and IPv6, deny private networks by default and allow installation operators to allowlist eligible internal destinations. Always-denied classes take precedence. Reject mixed eligible and denied DNS answers. Normalize IPv4-mapped IPv6. Apply the destination rules below to every supported outbound path. | [FR-010](srs.md#fr-010), [FR-035](srs.md#fr-035), [NFR-008](srs.md#nfr-008), [NFR-009](srs.md#nfr-009), [NFR-010](srs.md#nfr-010), [NFR-011](srs.md#nfr-011), [NFR-012](srs.md#nfr-012), [FR-043](srs.md#fr-043), [FR-047](srs.md#fr-047), [NFR-017](srs.md#nfr-017), [NFR-022](srs.md#nfr-022) |
@@ -44,7 +44,7 @@ APPROVED identifies explicit product decisions. READY FOR OWNER APPROVAL identif
 
 ## Monitor lifecycle
 
-The table specifies the transitions approved in [Q-04](prd.md#q-04). Scheduled target checks cannot start while PAUSED, including jobs queued before the pause. An internal fault or stale result cannot establish a state transition. Manual results are diagnostic only.
+The table specifies the transitions approved in [Q-04](prd.md#q-04) and [PD-016](../project/decision-register.md#pd-016). Scheduled target checks cannot start while PAUSED, including jobs queued before the pause. An internal fault or stale result cannot establish a state transition. Manual results are diagnostic only.
 
 | Event | State and effects |
 |---|---|
@@ -54,11 +54,12 @@ The table specifies the transitions approved in [Q-04](prd.md#q-04). Scheduled t
 | Configured consecutive recovery threshold reached after DOWN, including recovery following resume with a retained incident | UP, close the incident as recovered. |
 | Pause | PAUSED, reset streaks and keep the open incident. |
 | Resume | PENDING, preserve the open incident until confirmed recovery. |
-| Change the checked address | PENDING, reset streaks and close the previous incident for configuration change. |
+| Change the checked address while active | Enter PENDING, reset streaks and close any open incident as Configuration Changed. |
+| Change the checked URL while PAUSED | Keep PAUSED, close any open incident as Configuration Changed, reset both streaks and advance the configuration version. Start no automatic check. A later Resume enters PENDING. |
 | Change configuration | Reset streaks. |
 | Delete | Stop new executions and close any open incident as Monitor Deleted. |
 
-Stage 02 specifies ordering, stale-result eligibility and concurrent processing. Additional state transitions require owner approval.
+The approved [incident engine](../architecture/backend-design.md#incident-engine) specifies ordering, stale-result eligibility and concurrent processing. Additional state transitions require owner approval.
 
 ## Check result classification
 

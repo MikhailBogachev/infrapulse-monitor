@@ -4,21 +4,24 @@
 Repository documentation is the primary source of project context. Before work, read the [charter](docs/project/charter.md), [roadmap](docs/project/roadmap.md), [risk register](docs/project/risk-register.md) and [glossary](docs/project/glossary.md). Read applicable approved product specifications and ADRs when present.
 
 - Stage 00 — Project Initialization is approved and complete.
-- Stage 01 — Product Discovery is IN PROGRESS until final owner acceptance.
-- Stage 02 — System Design is pending.
+- Stage 01 — Product Discovery is COMPLETED AND APPROVED.
+- Stage 02 — System Design is COMPLETED AND APPROVED.
+- Stage 03 — UI/UX is PENDING.
 - IP-000 — Project Context Initialization is accepted.
 - IP-001 — Project Initialization Baseline Corrections is complete and merged.
 - IP-002 — Product Discovery Decision Review is approved.
 - IP-003 — Product Requirements Documentation is COMPLETED AND MERGED.
-- IP-004 — Product Requirements Finalization is READY FOR OWNER APPROVAL.
+- IP-004 — Product Requirements Finalization is COMPLETED AND MERGED.
+- IP-005 — System Design and Architecture is COMPLETED AND APPROVED.
+- Next task: IP-006 — UI/UX Design.
 - Application implementation has not started. Explicit owner authorization is required before implementation.
 
 ## Product requirements
 
-- Read [approved product decisions PD-001–PD-015](docs/project/decision-register.md#approved-product-decisions) and [approved Q-01–Q-15](docs/project/decision-register.md#ip-004-product-decisions) for Stage 01 scope.
-- Use the [PRD](docs/product/prd.md) for scope and catalog, the [SRS](docs/product/srs.md) for normative requirements and the [Acceptance Criteria](docs/product/acceptance-criteria.md) for expected evidence. The product documents are READY FOR OWNER APPROVAL.
+- Read [approved product decisions PD-001–PD-015](docs/project/decision-register.md#approved-product-decisions) and [approved Q-01–Q-15](docs/project/decision-register.md#ip-004-product-decisions) for Stage 01 scope. Apply [PD-016](docs/project/decision-register.md#pd-016) as the approved IP-005 refinement.
+- Use the [PRD](docs/product/prd.md) for scope and catalog, the [SRS](docs/product/srs.md) for normative requirements and the [Acceptance Criteria](docs/product/acceptance-criteria.md) for expected evidence. The product documents form the approved Stage 01 baseline.
 - Preserve feature IDs and release assignments. Trace requirements to their sources, verification methods and acceptance criteria in the [Requirements Traceability Matrix](docs/product/requirements-traceability-matrix.md). Link applicable stories, rules, flows and screens. Record exceptions and gaps.
-- Use the decision register for approved scope and the PRD for deferred design details. Stage 02 requires final owner acceptance of Stage 01.
+- Use the decision register for approved scope and the PRD for deferred design details. For Stage 02, use the [architecture overview](docs/architecture/system-architecture.md) and [approved architecture decisions](docs/project/decision-register.md#approved-stage-02-architecture-decisions). The owner accepted Stage 02 in IP-005 Final Acceptance.
 
 ## Codex CLI
 - Use Codex CLI as the current development assistant interface.

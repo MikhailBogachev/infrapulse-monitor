@@ -21,7 +21,7 @@ Backend developers, DevOps engineers, independent developers and small engineeri
 | v0.5.0 Beta | F-013 TCP checks; F-014 SSL expiry; F-015 email; F-016 webhooks; F-017 RBAC; F-018 uptime and latency analytics; F-019 public status pages; F-020 maintenance windows; F-021 API keys; F-030 HTTP keyword monitoring; F-031 JSON assertion monitoring; F-032 workspace invitations and membership |
 | v1.0.0 Release | F-022 audit log; F-023 Prometheus/Grafana; F-024 report export; F-025 interactive isolated demo mode; F-026 integration and load testing; F-027 public demo deployment; F-028 documentation |
 
-The [PRD feature catalog](../product/prd.md#feature-catalog) records feature assignments and sources. The [Decision Register](decision-register.md#approved-product-decisions) records the detailed scope approved in PD-001–PD-015.
+The [PRD feature catalog](../product/prd.md#feature-catalog) records feature assignments and sources. The [Decision Register](decision-register.md#approved-product-decisions) records the detailed scope approved in PD-001–PD-016.
 
 - **MVP.** Configurable public registration defaults to disabled after setup (PD-001). GET and HEAD checks have a 30-second minimum configurable interval (PD-002, PD-003). Configurable thresholds distinguish target failure from platform faults (PD-004). Manual execution (PD-005), scoped ownership and operator-controlled restrictive network policy (PD-006, PD-007), polling (PD-008) and basic uptime and latency (PD-011) complete the baseline. The web application is dark-only, accessible, desktop-first responsive and uses English (PD-013–PD-015).
 - **Beta.** Add invitations, membership and role-based access (PD-001, PD-007), Server-Sent Events (PD-008), TCP, SSL, HTTP keyword and JSON assertion monitoring (PD-009) and expanded analytics (PD-011).
@@ -34,11 +34,9 @@ Modular monolith with separate API, scheduler and worker processes. PostgreSQL i
 
 The approved technology baseline includes FastAPI, PostgreSQL, RabbitMQ, Celery, Redis, React, Docker and Docker Compose. [D-010](decision-register.md#d-010) approves GitHub Actions as the required CI platform for MVP v0.1.0.
 
-## Proposed technology candidates
-Python 3.13, SQLAlchemy 2, Psycopg 3, Alembic, Pydantic 2, Celery Beat, HTTPX, TypeScript, Vite, Tailwind CSS, shadcn/ui, Recharts, Nginx, uv, pytest, Testcontainers, Ruff, mypy and structlog remain candidates. Version numbers in this list describe proposals.
+## Stage 02 design and verification
 
-## Pending architectural decisions
-Dependency versions, database schema, worker concurrency and execution model, partitioning, use of a transactional outbox and delivery guarantees remain open. See the [decision register](decision-register.md) for other pending decisions and Product Discovery topics.
+The owner approved the [architecture decisions](decision-register.md#approved-stage-02-architecture-decisions), the [technology stack](../architecture/technology-stack.md) and the [system design](../architecture/system-architecture.md) in IP-005. Stage 04 pins exact dependency versions and runs the pending technical spikes. Stage 07 verifies load targets and retention. See the [verification gates](../architecture/system-architecture.md#verification-gates).
 
 ## Success targets (not measured results)
 - 1,000 active monitors at 60-second intervals; approximately 16.7 checks/s on average.
@@ -58,4 +56,4 @@ UI, repository documentation, source identifiers, technical messages and code co
 InfraPulse is an approved working name, not a cleared trademark. Similar names have been reported in the same industry. Repository slug is infrapulse-monitor; account-level availability and legal clearance remain unverified. Reassess before public branding or commercial release.
 
 ## Approval
-Stage 00 baseline approved by the project owner in conversation on 2026-11-25. Detailed requirements and technical decisions remain subject to later stage approval.
+Stage 00 baseline approved by the project owner in conversation on 2026-11-25. Later approvals are recorded in the [decision register](decision-register.md) and [roadmap](roadmap.md).

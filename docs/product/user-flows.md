@@ -157,7 +157,7 @@ flowchart LR
 | Main success path | Submit changed valid fields and review saved configuration. |
 | Alternative paths | Cancel preserves saved configuration. |
 | Failure paths | Invalid or unauthorized changes leave saved fields intact. |
-| Postconditions | Display the saved configuration and reset result streaks. An address change sets PENDING and closes any open incident for configuration change. |
+| Postconditions | Display the saved configuration and reset result streaks. Changing the checked address of an active monitor sets PENDING and closes any open incident as Configuration Changed. Under [PD-016](../project/decision-register.md#pd-016), changing the checked URL of a PAUSED monitor keeps it PAUSED, closes any open incident as Configuration Changed, advances the configuration version and starts no automatic check. A subsequent [Resume](#uf-010) sets PENDING. |
 | Related requirements | [FR-013](srs.md#fr-013), [FR-036](srs.md#fr-036), [FR-037](srs.md#fr-037), [NFR-008](srs.md#nfr-008), [NFR-009](srs.md#nfr-009), [NFR-010](srs.md#nfr-010), [NFR-031](srs.md#nfr-031) |
 | Related screens | [UI-005](#ui-005), [UI-006](#ui-006) |
 | Validation note | — |
@@ -189,7 +189,7 @@ flowchart LR
 | Preconditions | An authorized monitor exists |
 | Trigger | Owner pauses or resumes it |
 | Main success path | Pause enters PAUSED and clears streaks. Neither due opportunities during pause nor jobs queued before pause may start a recurring target check while PAUSED. Resume enters PENDING and restores eligibility for future scheduled checks. |
-| Alternative paths | An open incident remains open across pause and resume until confirmed recovery. |
+| Alternative paths | An incident retained across pause is still open after Resume until confirmed recovery. A checked URL edit during pause closes the incident as Configuration Changed in [UF-008](#uf-008). |
 | Failure paths | A rejected change preserves the existing configuration and lifecycle. |
 | Postconditions | Work suppressed during pause leaves no fabricated completed check or availability observation in history. |
 | Related requirements | [FR-015](srs.md#fr-015), [FR-036](srs.md#fr-036), [FR-063](srs.md#fr-063) |
