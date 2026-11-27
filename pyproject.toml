@@ -1,0 +1,61 @@
+[project]
+name = "infrapulse"
+version = "0.0.0"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "alembic==1.16.5",
+    "argon2-cffi==25.1.0",
+    "celery==5.6.3",
+    "cryptography==50.0.0",
+    "fastapi==0.135.3",
+    "httpx==0.28.1",
+    "psycopg[binary]==3.3.3",
+    "pydantic==2.12.5",
+    "pydantic-settings==2.14.2",
+    "pyjwt==2.15.0",
+    "redis==7.4.0",
+    "sqlalchemy[asyncio]==2.0.48",
+    "structlog==25.5.0",
+    "uvicorn==0.42.0",
+]
+
+[dependency-groups]
+dev = [
+    "dnspython==2.9.2",
+    "mypy==1.19.1",
+    "pika==1.3.2",
+    "pytest==9.0.3",
+    "ruff==0.15.7",
+    "testcontainers[postgres]==4.14.1",
+]
+
+[build-system]
+requires = ["uv_build==0.11.19"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = "backend/src"
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+addopts = "-ra"
+markers = ["integration: requires a disposable Docker daemon fixture"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+strict = true
+files = ["backend/src", "backend/migrations"]
+
+[[tool.mypy.overrides]]
+module = ["celery.*", "kombu.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["infrapulse.worker"]
+disable_error_code = ["no-untyped-call", "untyped-decorator"]

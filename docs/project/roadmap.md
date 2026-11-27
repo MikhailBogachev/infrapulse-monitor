@@ -9,7 +9,7 @@ Eight-week planning estimate for InfraPulse alone, not a delivery guarantee. Wee
 | 01 Product Discovery | 1 | COMPLETED AND APPROVED. IP-003 and IP-004 delivered and finalized the product baseline. |
 | 02 System Design | 1–2 | COMPLETED AND APPROVED. IP-005 delivers the approved architecture, ERD, API, queue semantics, threat model and ADRs. |
 | 03 UI/UX | 2 | COMPLETED AND APPROVED. The owner accepted the design documentation and local interactive HTML prototype in [IP-006 Final Acceptance](#ip-006-uiux-design). |
-| 04 Development Setup | 2 | PENDING. Repository, locked dependencies, [GitHub Actions CI](decision-register.md#d-010), Compose, verified toolchain and [six mandatory technical spikes](../architecture/system-architecture.md#verification-gates) |
+| 04 Development Setup | 2 | IN PROGRESS. Repository, locked dependencies, [GitHub Actions CI](decision-register.md#d-010), Compose, verified toolchain and [six mandatory technical spikes](../architecture/system-architecture.md#verification-gates) |
 | 05 Backend | 3–6 | Tested vertical slices, MVP then beta scope |
 | 06 Frontend | 4–6 | Usable UI integrated with API |
 | 07 QA | 6–7 | Security, integration, end-to-end, load and retention evidence |
@@ -42,7 +42,7 @@ Codex verified status consistency, ran `git diff HEAD --check` and checked white
 
 Full WCAG 2.2 AA conformance remains unverified. Apply the [accessibility verification checklist](../design/accessibility.md#verification-checklist) to the production frontend, including browser reflow, keyboard interaction and assistive technology checks.
 
-Stage 04 is **PENDING**. The next task is **IP-007 — Development Environment Setup**. The [verification gates](../architecture/system-architecture.md#verification-gates) retain all six mandatory Stage 04 technical spikes and Stage 07 load and retention verification.
+Stage 04 is **IN PROGRESS** under **IP-007 — Development Environment Setup**. The [setup guide](../development/setup.md) documents the foundation. The [spike reports](../development/technical-spikes.md) record current evidence for the six mandatory [verification gates](../architecture/system-architecture.md#verification-gates). Load and retention verification remains in Stage 07.
 
 ## Release gates
 

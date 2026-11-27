@@ -1,0 +1,182 @@
+name: infrapulse-dev
+
+x-backend: &backend
+  image: ${COMPOSE_PROJECT_NAME:-infrapulse-dev}-backend:stage04
+  pull_policy: never
+  init: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  read_only: true
+  tmpfs: [/tmp]
+  stop_grace_period: 35s
+
+x-worker: &worker
+  <<: *backend
+  secrets: [infrapulse_db_password, infrapulse_broker_password]
+  networks: [control]
+  depends_on:
+    migrate: {condition: service_completed_successfully}
+    rabbitmq: {condition: service_healthy}
+  healthcheck:
+    test: [CMD, python, -m, infrapulse.worker_health]
+    interval: 3s
+    timeout: 2s
+    retries: 10
+
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "127.0.0.1:${INFRAPULSE_PORT:-8080}:8080"
+    networks: [edge, ingress]
+    stop_signal: SIGQUIT
+    stop_grace_period: 15s
+    depends_on:
+      api: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, "http://127.0.0.1:8080/health/live"]
+      interval: 3s
+      timeout: 2s
+      retries: 10
+
+  api:
+    <<: *backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    networks: [ingress, control]
+    secrets: [infrapulse_db_password, infrapulse_redis_password]
+    volumes: [execution-locks:/locks]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "from urllib.request import urlopen; urlopen('http://127.0.0.1:8000/health/ready', timeout=3).close()"
+      interval: 3s
+      timeout: 4s
+      retries: 10
+
+  scheduler:
+    <<: *worker
+    command: [python, -m, infrapulse.scheduler]
+    volumes: [scheduler-state:/state]
+    healthcheck:
+      test: [CMD, python, -m, infrapulse.scheduler, health]
+      interval: 3s
+      timeout: 2s
+      retries: 10
+
+  worker-checks:
+    <<: *worker
+    command:
+      [celery, -A, "infrapulse.worker:app", worker, -Q, check, --concurrency=2, -n, "checks@%h", --pidfile=/tmp/infrapulse-worker.pid]
+    volumes: [execution-locks:/locks]
+
+  worker-notifications:
+    <<: *worker
+    command:
+      [celery, -A, "infrapulse.worker:app", worker, -Q, notification, --concurrency=2, -n, "notifications@%h", --pidfile=/tmp/infrapulse-worker.pid]
+
+  postgres:
+    image: postgres:17.9-bookworm
+    environment:
+      POSTGRES_DB: infrapulse
+      POSTGRES_USER: infrapulse_admin
+      POSTGRES_PASSWORD_FILE: /run/secrets/infrapulse_admin_password
+    secrets: [infrapulse_admin_password, infrapulse_migration_password, infrapulse_db_password]
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+      - ./infra/postgres/10-roles.sql:/docker-entrypoint-initdb.d/10-roles.sql:ro
+    networks: [control]
+    stop_grace_period: 30s
+    healthcheck:
+      test: [CMD, pg_isready, -h, 127.0.0.1, -U, infrapulse_admin, -d, infrapulse]
+      interval: 3s
+      timeout: 2s
+      retries: 15
+
+  rabbitmq:
+    image: rabbitmq:4.2.5
+    hostname: broker
+    entrypoint:
+      - /bin/sh
+      - -ec
+      - |
+        export RABBITMQ_DEFAULT_USER=infrapulse
+        export RABBITMQ_DEFAULT_PASS="$$(cat /run/secrets/infrapulse_broker_password)"
+        exec docker-entrypoint.sh rabbitmq-server
+    secrets: [infrapulse_broker_password]
+    volumes: [rabbit-data:/var/lib/rabbitmq]
+    networks: [control]
+    stop_grace_period: 35s
+    healthcheck:
+      test: [CMD, rabbitmq-diagnostics, -q, check_port_connectivity]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+
+  redis:
+    image: redis:8.6.2-alpine
+    entrypoint:
+      - /bin/sh
+      - -ec
+      - |
+        cat /run/secrets/infrapulse_redis_password | {
+          read -r password
+          printf 'save ""\nprotected-mode yes\nrequirepass %s\n' "$$password" > /run/redis/redis.conf
+        }
+        chown redis:redis /run/redis/redis.conf
+        chmod 0400 /run/redis/redis.conf
+        exec docker-entrypoint.sh redis-server /run/redis/redis.conf
+    tmpfs: [/run/redis]
+    secrets: [infrapulse_redis_password]
+    networks: [control]
+    healthcheck:
+      test: [CMD-SHELL, 'REDISCLI_AUTH="$$(cat /run/secrets/infrapulse_redis_password)" redis-cli --raw ping | grep -qx PONG']
+      interval: 3s
+      timeout: 2s
+      retries: 10
+
+  migrate:
+    <<: *backend
+    command: [sh, -ec, "alembic upgrade head && python -m infrapulse.worker"]
+    environment:
+      INFRAPULSE_DB_USER: infrapulse_migrate
+    networks: [control]
+    secrets:
+      - source: infrapulse_migration_password
+        target: infrapulse_db_password
+      - infrapulse_broker_password
+    depends_on:
+      postgres: {condition: service_healthy}
+      rabbitmq: {condition: service_healthy}
+
+networks:
+  edge:
+  ingress: {internal: true}
+  control: {internal: true}
+
+volumes:
+  execution-locks:
+    driver: local
+  scheduler-state:
+  pg-data:
+  rabbit-data:
+
+secrets:
+  infrapulse_admin_password:
+    file: ${INFRAPULSE_SECRETS_DIR:-./.secrets}/infrapulse_admin_password
+  infrapulse_migration_password:
+    file: ${INFRAPULSE_SECRETS_DIR:-./.secrets}/infrapulse_migration_password
+  infrapulse_db_password:
+    file: ${INFRAPULSE_SECRETS_DIR:-./.secrets}/infrapulse_db_password
+  infrapulse_broker_password:
+    file: ${INFRAPULSE_SECRETS_DIR:-./.secrets}/infrapulse_broker_password
+  infrapulse_redis_password:
+    file: ${INFRAPULSE_SECRETS_DIR:-./.secrets}/infrapulse_redis_password

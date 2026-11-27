@@ -1,0 +1,120 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  UV_VERSION: "0.11.19"
+  PYTHON_VERSION: "3.13.12"
+  NODE_VERSION: "22.22.2"
+
+jobs:
+  backend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
+        with:
+          version: ${{ env.UV_VERSION }}
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: uv sync --locked
+      - run: uv run --locked ruff check .
+      - run: uv run --locked ruff format --check .
+      - run: uv run --locked mypy
+      - run: uv run --locked pytest -m "not integration"
+
+  frontend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  integration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      COMPOSE_PROJECT_NAME: infrapulse-ci
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
+        with:
+          version: ${{ env.UV_VERSION }}
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: make install config test-integration
+      - run: make up
+      - run: make smoke browser-container
+      - run: make spike-runner
+      - run: docker compose -f compose.yaml -f spikes/compose.yaml --profile spike run --rm --no-deps -T spike python /spikes/stack.py
+      - name: Run mandatory compatibility spikes
+        shell: bash
+        run: |
+          mkdir -p spike-logs
+          make spike-postgres spike-rabbit spike-httpx spike-guard 2>&1 | tee spike-logs/integration.log
+      - name: Preserve spike diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: integration-spikes
+          path: spike-logs/
+      - name: Show isolated service status
+        if: failure()
+        run: docker compose ps -a
+      - name: Remove CI fixtures
+        if: always()
+        run: docker compose -f compose.yaml -f spikes/compose.yaml --profile spike down -v
+
+  linux-egress-fixture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - name: Install disposable runner tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nftables iproute2
+      - name: Preload the fixture image
+        run: docker pull python:3.13.12-slim-bookworm
+      - name: Verify Linux container egress
+        shell: bash
+        run: |
+          mkdir -p spike-logs
+          sudo make spike-egress 2>&1 | tee spike-logs/linux-egress.log
+      - name: Preserve egress diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: linux-egress-spike
+          path: spike-logs/

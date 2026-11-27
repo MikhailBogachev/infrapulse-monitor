@@ -56,8 +56,8 @@ The project owner approved AD-001–AD-012 and the [technology stack](../archite
 | <a id="ad-011"></a> AD-011 | Frontend Architecture | [ADR-004](../architecture/adr/adr-004-http-identity-and-spa.md) |
 | <a id="ad-012"></a> AD-012 | Deployment and Infrastructure | [ADR-005](../architecture/adr/adr-005-outbound-and-deployment.md) |
 | <a id="ad-013"></a> AD-013 | Linux Deployment Environment · APPROVED. Production uses Linux, Docker Engine and Docker Compose. Local development uses macOS and Docker Desktop. Run production-specific network verification on Linux. | [ADR-005](../architecture/adr/adr-005-outbound-and-deployment.md#ad-013) |
-| <a id="ad-014"></a> AD-014 | Check Worker Execution Guard · APPROVED. MVP uses one check-worker container with multiple prefork processes. A subsequent execution requires proof that the previous execution has ended. Lease expiry alone cannot authorize it. The mandatory Stage 04 execution guard spike remains pending. | [ADR-005](../architecture/adr/adr-005-outbound-and-deployment.md#ad-014) |
-| <a id="ad-015"></a> AD-015 | Host-managed Network Egress · APPROVED. Combine application-level destination verification with Linux host-managed outbound restrictions. The mandatory Stage 04 IPv4/IPv6 egress spike remains pending. | [ADR-005](../architecture/adr/adr-005-outbound-and-deployment.md#ad-015) |
+| <a id="ad-014"></a> AD-014 | Check Worker Execution Guard · APPROVED. MVP uses one check-worker container with multiple prefork processes. A subsequent execution requires proof that the previous execution has ended. Lease expiry alone cannot authorize it. See the [Stage 04 execution guard evidence](../development/technical-spikes.md#6-worker-execution-guard). | [ADR-005](../architecture/adr/adr-005-outbound-and-deployment.md#ad-014) |
+| <a id="ad-015"></a> AD-015 | Host-managed Network Egress · APPROVED. Combine application-level destination verification with Linux host-managed outbound restrictions. See the [Stage 04 host egress evidence](../development/technical-spikes.md#5-ipv4ipv6-egress-enforcement). | [ADR-005](../architecture/adr/adr-005-outbound-and-deployment.md#ad-015) |
 | <a id="ad-016"></a> AD-016 | Scheduler & Control Worker · APPROVED. Run Celery Beat and the control worker as separate processes in one scheduler container. Supervise lifecycle and failures, support graceful shutdown and enforce a single Beat instance. | [ADR-005](../architecture/adr/adr-005-outbound-and-deployment.md#ad-016) |
 
 ## Approved Product Decisions
@@ -131,3 +131,7 @@ See the [design system](../design/design-system.md), [MVP screen specifications]
 ## Other pending decisions
 
 - Branding clearance.
+
+## IP-007 verification
+
+Stage 04 is in progress. The [technical spike reports](../development/technical-spikes.md) record verification evidence and open gates for the approved decisions.

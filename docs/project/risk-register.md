@@ -6,8 +6,8 @@ All risks initially open. H = high, M = medium, L = low. Owner reviews at each s
 | ID | Risk | Likelihood / impact | Mitigation / verification | Responsible role |
 |---|---|---|---|---|
 | R-01 | Scope creep | H/H | Release boundaries; change approval | Product owner |
-| R-02 | SSRF / network abuse through internal allowlisting, supported outbound paths or additional monitor types | H/H | Use restrictive defaults, deny precedence, operator authorization, effective destination verification and bounded Beta target interaction. Gate monitoring implementation on [pinned HTTPX and Linux egress evidence](../architecture/security-design.md#mandatory-outbound-spike) across address families. | Backend |
-| R-03 | Duplicate tasks or manual and scheduled overlap | H/H | Verify stable logical identity and actual non-overlap even after lease expiry or DB disconnect in the [execution guard spike](../architecture/backend-design.md#execution-guard-spike). | Backend |
+| R-02 | SSRF / network abuse through internal allowlisting, supported outbound paths or additional monitor types | H/H | The pinned [HTTPX candidate](../development/technical-spikes.md#4-httpx-secure-transport) passed controlled checks. [Native Linux firewall evidence](../development/technical-spikes.md#5-ipv4ipv6-egress-enforcement) and verification on the supported deployment topology are pending, including policy readiness after replacement and the narrow control-plane exceptions. | Backend |
+| R-03 | Duplicate tasks or manual and scheduled overlap | H/H | The [Celery TLS fixture](../development/technical-spikes.md#6-worker-execution-guard) observed at most one active socket after lease expiry, DB disconnect, child death and container replacement. Verify the native Linux deployment, stable lock-volume lifecycle and trusted generation-exit proof before closing the gate. | Backend |
 | R-04 | Lost tasks | M/H | Verify confirms, mandatory routing, durable reconciliation and late acknowledgement with controlled broker failure. | Backend |
 | R-05 | False incidents | H/M | Failure/recovery thresholds; ordered state transitions | Backend |
 | R-06 | History growth | H/H | Verify six-hour partitions, ledger/index overhead, physical cleanup and representative query plans. | Backend |
@@ -24,3 +24,5 @@ All risks initially open. H = high, M = medium, L = low. Owner reviews at each s
 | R-17 | Stale or unauthorized live updates and reconnect bursts | M/H | Verify Beta workspace-scoped SSE, recovery of authoritative display state and resource behavior under controlled reconnects. | Frontend and Backend |
 
 All risks remain open. Roles describe responsibilities of the solo developer. Review residual risk and evidence before release.
+
+Stage 04 experiment evidence and residual risks for R-02, R-03, R-04, R-06, R-13 and R-14 are tracked in the [IP-007 technical spike reports](../development/technical-spikes.md).
