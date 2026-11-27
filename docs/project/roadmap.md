@@ -8,8 +8,8 @@ Eight-week planning estimate for InfraPulse alone, not a delivery guarantee. Wee
 | 00 Initialization | 1 | Approved charter, roadmap, risks, glossary |
 | 01 Product Discovery | 1 | COMPLETED AND APPROVED. IP-003 and IP-004 delivered and finalized the product baseline. |
 | 02 System Design | 1–2 | COMPLETED AND APPROVED. IP-005 delivers the approved architecture, ERD, API, queue semantics, threat model and ADRs. |
-| 03 UI/UX | 2 | PENDING. IP-006 covers screen flows, design system and responsive mockups. |
-| 04 Development Setup | 2 | Repository, locked dependencies, [GitHub Actions CI](decision-register.md#d-010), Compose, verified toolchain and [six mandatory technical spikes](../architecture/system-architecture.md#verification-gates) |
+| 03 UI/UX | 2 | COMPLETED AND APPROVED. The owner accepted the design documentation and local interactive HTML prototype in [IP-006 Final Acceptance](#ip-006-uiux-design). |
+| 04 Development Setup | 2 | PENDING. Repository, locked dependencies, [GitHub Actions CI](decision-register.md#d-010), Compose, verified toolchain and [six mandatory technical spikes](../architecture/system-architecture.md#verification-gates) |
 | 05 Backend | 3–6 | Tested vertical slices, MVP then beta scope |
 | 06 Frontend | 4–6 | Usable UI integrated with API |
 | 07 QA | 6–7 | Security, integration, end-to-end, load and retention evidence |
@@ -24,7 +24,25 @@ IP-003 is **COMPLETED AND MERGED**, including its review corrections.
 
 ## IP-005 final acceptance
 
-IP-004 is **COMPLETED AND MERGED**. [Q-01–Q-15](decision-register.md#ip-004-product-decisions) form the approved product baseline. IP-005 and Stage 02 are **COMPLETED AND APPROVED**. The owner accepted the [system design](../architecture/system-architecture.md), [AD-013–AD-016](decision-register.md#ad-013) and [PD-016](decision-register.md#pd-016) in IP-005 Final Acceptance. Stage 03 is **PENDING**. Next task: **IP-006 — UI/UX Design**. The [verification gates](../architecture/system-architecture.md#verification-gates) retain the pending Stage 04 spikes and Stage 07 load and retention checks.
+IP-004 is **COMPLETED AND MERGED**. [Q-01–Q-15](decision-register.md#ip-004-product-decisions) form the approved product baseline. IP-005 and Stage 02 are **COMPLETED AND APPROVED**. The owner accepted the [system design](../architecture/system-architecture.md), [AD-013–AD-016](decision-register.md#ad-013) and [PD-016](decision-register.md#pd-016) in IP-005 Final Acceptance. The [verification gates](../architecture/system-architecture.md#verification-gates) retain the pending Stage 04 spikes and Stage 07 load and retention checks.
+
+## IP-006 UI/UX design
+
+IP-006 and Stage 03 are **COMPLETED AND APPROVED**. In IP-006 Final Acceptance, the owner approved [UX-001–UX-012](decision-register.md#approved-stage-03-ux-decisions), the [design system](../design/design-system.md), specifications for all 11 [MVP screens](../design/screen-specifications.md) and the [interactive HTML prototype](../design/prototype/index.html). The design documentation and prototype form the approved design baseline for MVP v0.1.0.
+
+### Owner manual verification
+
+The owner completed visual and functional review and reported that all 15 checklist items passed with no findings. The review covered responsive layouts at 360, 768, 1024 and 1440 px, principal user journeys and manual keyboard navigation.
+
+### Codex automated verification
+
+Codex verified status consistency, ran `git diff HEAD --check` and checked whitespace in all nine new design files. All checks passed.
+
+### Pending verification and next task
+
+Full WCAG 2.2 AA conformance remains unverified. Apply the [accessibility verification checklist](../design/accessibility.md#verification-checklist) to the production frontend, including browser reflow, keyboard interaction and assistive technology checks.
+
+Stage 04 is **PENDING**. The next task is **IP-007 — Development Environment Setup**. The [verification gates](../architecture/system-architecture.md#verification-gates) retain all six mandatory Stage 04 technical spikes and Stage 07 load and retention verification.
 
 ## Release gates
 

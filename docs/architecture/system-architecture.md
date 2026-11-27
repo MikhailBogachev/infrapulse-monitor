@@ -2,7 +2,7 @@
 
 IP-005 · Stage 02 COMPLETED AND APPROVED · MVP v0.1.0 design
 
-The [decision register](../project/decision-register.md#approved-stage-02-architecture-decisions) records owner-approved AD-001–AD-016 and [PD-016](../project/decision-register.md#pd-016). Stage 03 is PENDING. The next task is IP-006 — UI/UX Design. The [SRS](../product/srs.md), [business rules](../product/business-rules.md), [flows](../product/user-flows.md) and [acceptance criteria](../product/acceptance-criteria.md) govern behavior. This design covers MVP. Beta and v1.0.0 retain their [release assignments](../product/prd.md#feature-catalog).
+The [decision register](../project/decision-register.md#approved-stage-02-architecture-decisions) records owner-approved AD-001–AD-016 and [PD-016](../project/decision-register.md#pd-016). Stage 03 is COMPLETED AND APPROVED under [IP-006 — UI/UX Design](../project/roadmap.md#ip-006-uiux-design). The [SRS](../product/srs.md), [business rules](../product/business-rules.md), [flows](../product/user-flows.md) and [acceptance criteria](../product/acceptance-criteria.md) govern behavior. This design covers MVP. Beta and v1.0.0 retain their [release assignments](../product/prd.md#feature-catalog).
 
 ## C4 level 1 · System context
 

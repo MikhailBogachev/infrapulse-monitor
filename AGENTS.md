@@ -6,14 +6,16 @@ Repository documentation is the primary source of project context. Before work, 
 - Stage 00 — Project Initialization is approved and complete.
 - Stage 01 — Product Discovery is COMPLETED AND APPROVED.
 - Stage 02 — System Design is COMPLETED AND APPROVED.
-- Stage 03 — UI/UX is PENDING.
+- Stage 03 — UI/UX is COMPLETED AND APPROVED.
+- Stage 04 — Development Setup is PENDING.
 - IP-000 — Project Context Initialization is accepted.
 - IP-001 — Project Initialization Baseline Corrections is complete and merged.
 - IP-002 — Product Discovery Decision Review is approved.
 - IP-003 — Product Requirements Documentation is COMPLETED AND MERGED.
 - IP-004 — Product Requirements Finalization is COMPLETED AND MERGED.
 - IP-005 — System Design and Architecture is COMPLETED AND APPROVED.
-- Next task: IP-006 — UI/UX Design.
+- IP-006 — UI/UX Design is COMPLETED AND APPROVED.
+- Next task: IP-007 — Development Environment Setup.
 - Application implementation has not started. Explicit owner authorization is required before implementation.
 
 ## Product requirements
@@ -22,6 +24,7 @@ Repository documentation is the primary source of project context. Before work, 
 - Use the [PRD](docs/product/prd.md) for scope and catalog, the [SRS](docs/product/srs.md) for normative requirements and the [Acceptance Criteria](docs/product/acceptance-criteria.md) for expected evidence. The product documents form the approved Stage 01 baseline.
 - Preserve feature IDs and release assignments. Trace requirements to their sources, verification methods and acceptance criteria in the [Requirements Traceability Matrix](docs/product/requirements-traceability-matrix.md). Link applicable stories, rules, flows and screens. Record exceptions and gaps.
 - Use the decision register for approved scope and the PRD for deferred design details. For Stage 02, use the [architecture overview](docs/architecture/system-architecture.md) and [approved architecture decisions](docs/project/decision-register.md#approved-stage-02-architecture-decisions). The owner accepted Stage 02 in IP-005 Final Acceptance.
+- For Stage 03, use the [approved UX decisions](docs/project/decision-register.md#approved-stage-03-ux-decisions), [design system](docs/design/design-system.md) and [MVP screen specifications](docs/design/screen-specifications.md).
 
 ## Codex CLI
 - Use Codex CLI as the current development assistant interface.
