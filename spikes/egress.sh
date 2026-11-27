@@ -89,7 +89,14 @@ endpoint() {
   python3 "$fixture" ready "$ipv4" "$ipv6" "$@"
 }
 
-nft -f - <<'RULES'
+apply_ruleset() {
+  local ruleset
+  ruleset=$(cat)
+  "$@" nft --check -f - <<<"$ruleset"
+  "$@" nft -f - <<<"$ruleset"
+}
+
+apply_ruleset <<'RULES'
 table inet ip007_gateway {
   counter host_drops {}
   counter translated_v4 {}
@@ -101,7 +108,7 @@ table inet ip007_gateway {
   }
   chain local_input {
     type filter hook input priority filter; policy accept;
-    iifname "router70" tcp counter name host_drops drop
+    iifname "router70" meta l4proto tcp counter name host_drops drop
   }
   chain transit {
     type filter hook forward priority filter; policy drop;
@@ -145,7 +152,7 @@ provision() {
   echo "Container ${worker:0:12} starts disconnected"
 
   # The host controls this namespace; the test process has no network capabilities.
-  nsenter -t "$worker_pid" -n nft -f - <<'RULES'
+  apply_ruleset nsenter -t "$worker_pid" -n <<'RULES'
 table inet ip007_worker_v1 {
   counter local_drops {}
   counter denied_v4 {}
