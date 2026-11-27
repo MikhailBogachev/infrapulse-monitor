@@ -6,14 +6,16 @@ Open-source, self-hosted infrastructure and API monitoring platform with a web i
 - Stage 00 — Project Initialization is approved and complete.
 - Stage 01 — Product Discovery is COMPLETED AND APPROVED.
 - Stage 02 — System Design is COMPLETED AND APPROVED.
-- Stage 03 — UI/UX is PENDING.
+- Stage 03 — UI/UX is COMPLETED AND APPROVED.
+- Stage 04 — Development Setup is PENDING.
 - IP-000 — Project Context Initialization is accepted.
 - IP-001 — Project Initialization Baseline Corrections is complete and merged.
 - IP-002 — Product Discovery Decision Review is approved.
 - IP-003 — Product Requirements Documentation is COMPLETED AND MERGED.
 - IP-004 — Product Requirements Finalization is COMPLETED AND MERGED.
 - IP-005 — System Design and Architecture is COMPLETED AND APPROVED.
-- Next task: IP-006 — UI/UX Design.
+- IP-006 — UI/UX Design is COMPLETED AND APPROVED.
+- Next task: IP-007 — Development Environment Setup.
 - Application implementation has not started.
 
 ## Project documentation
@@ -44,5 +46,18 @@ Product documentation version 0.2 is the approved Stage 01 baseline. [Q-01–Q-1
 - [System architecture and requirements map](docs/architecture/system-architecture.md)
 - [Approved technology stack](docs/architecture/technology-stack.md)
 - [Architecture decision register](docs/project/decision-register.md#approved-stage-02-architecture-decisions)
+
+## UI/UX design documentation
+
+The design documentation and interactive HTML prototype form the [approved design baseline](docs/project/roadmap.md#ip-006-uiux-design).
+
+- [Design system](docs/design/design-system.md)
+- [Information architecture](docs/design/information-architecture.md)
+- [MVP screen specifications](docs/design/screen-specifications.md)
+- [Interaction patterns](docs/design/interaction-patterns.md)
+- [Responsive design](docs/design/responsive-design.md)
+- [Accessibility specification](docs/design/accessibility.md)
+
+Open [the local prototype](docs/design/prototype/index.html) directly in a browser. It starts in the reference workspace. Use **Prototype / Demo Data** in the sidebar or mobile drawer to demonstrate session and operational states or reset the fixture. It runs offline with in-memory synthetic data. Use `owner@example.com` and `infrapulse-demo` if asked to sign in.
 
 InfraPulse is a working name; trademark clearance is not established. Intended license: MIT (license text pending setup).

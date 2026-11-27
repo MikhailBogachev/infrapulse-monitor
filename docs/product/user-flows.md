@@ -521,7 +521,7 @@ flowchart LR
 
 ## UI Screen Catalog
 
-The catalog identifies surfaces for Stage 03 design. The product-wide Dark Only requirement applies to every screen. Earlier screens can receive later-release capability extensions. Screen layout and breakpoints are pending Stage 03.
+The catalog identifies surfaces for Stage 03 design. The product-wide Dark Only requirement applies to every screen. Earlier screens can receive later-release capability extensions. MVP layouts and breakpoints are specified in the [IP-006 design](../design/screen-specifications.md).
 
 | ID | Title | Purpose | Actions | Initial release | Requirements | Flows |
 |---|---|---|---|---|---|---|
@@ -547,8 +547,8 @@ The catalog identifies surfaces for Stage 03 design. The product-wide Dark Only 
 
 ### Screens for Stage 03 design
 
-- Initial setup and operator policy controls have no dedicated registered screen. Propose an operator-controlled setup and administration entry, with sign-in as the existing handoff. [Q-01](prd.md#q-01), [Q-10](prd.md#q-10).
-- Demo entry, expiry feedback and reset have no dedicated registered screen. Reuse existing monitoring views for the interactive journey. Define entry and lifecycle affordances in Stage 03. [Q-13](prd.md#q-13).
+- Initial setup uses the [approved local operator command](../architecture/security-design.md#identity-and-sessions). Installation policy uses operator-managed configuration. [UI-001](../design/screen-specifications.md#ui-001) covers the sign-in handoff and setup-required guidance. [Q-01](prd.md#q-01), [Q-10](prd.md#q-10).
+- Public demo entry, expiry feedback and reset are deferred to the release design. The [Stage 03 prototype](../design/prototype/index.html) uses local synthetic fixtures and reset for design review. [Q-13](prd.md#q-13).
 - Operational telemetry uses the approved external Grafana surface for installation operators. It does not require a proposed InfraPulse screen.
 
 ## MVP polling scope

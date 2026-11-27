@@ -107,6 +107,27 @@ Approval source: explicit project-owner approval in the IP-004 task. The linked 
 | [Q-14](../product/prd.md#q-14) | Accessibility and responsive design | MVP; inherited later | APPROVED | [PD-013](#pd-013), [PD-014](#pd-014), [PD-015](#pd-015) |
 | [Q-15](../product/prd.md#q-15) | Beta and release contracts | Beta and v1.0.0 | APPROVED | [D-005](#d-005) |
 
+## Approved Stage 03 UX Decisions
+
+The owner confirmed the following decisions and approved the design documentation and interactive HTML prototype as the design baseline in [IP-006 Final Acceptance](roadmap.md#ip-006-uiux-design). IP-006 and Stage 03 are COMPLETED AND APPROVED.
+
+| ID | Decision | Application | Status |
+|---|---|---|---|
+| <a id="ux-001"></a> UX-001 | Modern Observability | Use an original observability UI with SaaS clarity and operational detail. | APPROVED |
+| <a id="ux-002"></a> UX-002 | Graphite and Indigo | Use the approved Graphite and Indigo palette in Dark Only mode. | APPROVED |
+| <a id="ux-003"></a> UX-003 | Typography | Use Inter and JetBrains Mono. | APPROVED |
+| <a id="ux-004"></a> UX-004 | Application shell | Use a persistent sidebar and topbar on desktop. | APPROVED |
+| <a id="ux-005"></a> UX-005 | Overview | Show KPIs, per-monitor metrics, monitor summary and active incidents. | APPROVED |
+| <a id="ux-006"></a> UX-006 | Visualization | Use Recharts for the future frontend, UTC timestamps and explicit No data states. | APPROVED |
+| <a id="ux-007"></a> UX-007 | Monitor forms | Use separate create and edit pages. | APPROVED |
+| <a id="ux-008"></a> UX-008 | Responsive layout | Use desktop-first balanced density and a mobile navigation drawer. | APPROVED |
+| <a id="ux-009"></a> UX-009 | Operational states | Design Loading, Empty, Error, Stale and Success states. | APPROVED |
+| <a id="ux-010"></a> UX-010 | Interaction feedback | Use inline validation, toasts and confirmation dialogs. | APPROVED |
+| <a id="ux-011"></a> UX-011 | Accessibility | Target WCAG 2.2 AA. | APPROVED |
+| <a id="ux-012"></a> UX-012 | Stage 03 deliverables | Provide design documentation and an autonomous interactive HTML prototype. | APPROVED |
+
+See the [design system](../design/design-system.md), [MVP screen specifications](../design/screen-specifications.md) and [local prototype](../design/prototype/index.html).
+
 ## Other pending decisions
 
 - Branding clearance.
