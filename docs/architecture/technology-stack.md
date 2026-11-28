@@ -2,7 +2,7 @@
 
 IP-005 · Stage 02 COMPLETED AND APPROVED
 
-The project owner approved this stack in IP-005. Major version constraints are part of the selection. Stage 04 pins exact versions after the mandatory stack compatibility spike, which is pending.
+The project owner approved this stack in IP-005. Major version constraints are part of the selection. Stage 04 pinned exact versions and passed the mandatory [stack compatibility spike](../development/technical-spikes.md#1-technology-stack-compatibility).
 
 | Area | Technology | Responsibility |
 |---|---|---|

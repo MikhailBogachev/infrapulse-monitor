@@ -1,0 +1,50 @@
+services:
+  spike: &spike
+    profiles: [spike]
+    image: ${COMPOSE_PROJECT_NAME:-infrapulse-dev}-spike:stage04
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      target: spike-runner
+    init: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    read_only: true
+    tmpfs: [/tmp]
+    networks: [control, lab]
+    volumes:
+      - ./spikes:/spikes:ro
+      - execution-locks:/locks
+    working_dir: /spikes
+    environment:
+      PYTHONPATH: /spikes
+    secrets: [infrapulse_db_password, infrapulse_broker_password, infrapulse_redis_password]
+
+  guard-worker:
+    <<: *spike
+    command: [celery, -A, guard_worker:app, worker, -Q, ip007-guard, --concurrency=2, --loglevel=INFO]
+    stop_grace_period: 20s
+    healthcheck:
+      test: [CMD, test, -f, /tmp/infrapulse-worker.ready]
+      interval: 1s
+      timeout: 1s
+      retries: 15
+
+  browser:
+    profiles: [spike]
+    image: ${COMPOSE_PROJECT_NAME:-infrapulse-dev}-browser:stage04
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      target: browser
+    init: true
+    read_only: true
+    tmpfs: [/tmp]
+    networks: [ingress]
+    environment:
+      INFRAPULSE_BASE_URL: http://nginx:8080
+
+networks:
+  lab:
+    internal: true
+    enable_ipv6: true

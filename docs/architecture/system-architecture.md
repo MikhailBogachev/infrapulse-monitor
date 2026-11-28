@@ -113,10 +113,10 @@ The existing [requirements traceability matrix](../product/requirements-traceabi
 | Stage | Gate | Status | Evidence required |
 |---|---|---|---|
 | 02 | Owner review | COMPLETED AND APPROVED | IP-005 Final Acceptance approves the architecture documentation, [AD-013–AD-016](../project/decision-register.md#ad-013) and [PD-016](../project/decision-register.md#pd-016). |
-| 04 | Stack compatibility | PENDING | Verify the [compatibility matrix and establish CI](technology-stack.md#stage-04-compatibility-verification). |
-| 04 | PostgreSQL DDL | PENDING | Verify [partition DDL, constraints, pruning and locks](database-design.md#result-identity-and-partitioning) on the pinned PostgreSQL version before storage implementation. |
-| 04 | RabbitMQ semantics | PENDING | Verify [routing, confirms, late acknowledgements and bounded redelivery](backend-design.md#broker-semantics-spike) on the pinned stack before broker reliability implementation. |
-| 04 | HTTPX transport | PENDING | Verify the [pinned transport](security-design.md#mandatory-outbound-spike) before monitoring engine implementation. |
-| 04 | IPv4/IPv6 egress | PENDING | Verify [Linux host-managed enforcement](security-design.md#mandatory-outbound-spike) before monitoring engine implementation. |
-| 04 | Execution guard | PENDING | Verify [non-overlap and guarded recovery](backend-design.md#execution-guard-spike) before monitoring engine implementation. |
+| 04 | Stack compatibility | [PASS](../development/technical-spikes.md#1-technology-stack-compatibility) | Verify the [compatibility matrix and establish CI](technology-stack.md#stage-04-compatibility-verification). |
+| 04 | PostgreSQL DDL | [PASS](../development/technical-spikes.md#2-postgresql-ddl-and-partitioning) | Verify [partition DDL, constraints, pruning and locks](database-design.md#result-identity-and-partitioning) on the pinned PostgreSQL version before storage implementation. |
+| 04 | RabbitMQ semantics | [PASS](../development/technical-spikes.md#3-rabbitmq-delivery-semantics) | Verify [routing, confirms, late acknowledgements and bounded redelivery](backend-design.md#broker-semantics-spike) on the pinned stack before broker reliability implementation. |
+| 04 | HTTPX transport | [PASS](../development/technical-spikes.md#4-httpx-secure-transport) | Verify the [pinned transport](security-design.md#mandatory-outbound-spike) before monitoring engine implementation. |
+| 04 | IPv4/IPv6 egress | [PASS](../development/technical-spikes.md#5-ipv4ipv6-egress-enforcement) | Verify [Linux host-managed enforcement](security-design.md#mandatory-outbound-spike) before monitoring engine implementation. |
+| 04 | Execution guard | [PASS](../development/technical-spikes.md#6-worker-execution-guard) | Verify [non-overlap and guarded recovery](backend-design.md#execution-guard-spike) before monitoring engine implementation. |
 | 07 | Load and retention | PENDING | Complete the [load protocol](../product/srs.md#performance-measurement-protocol), measure the approved workload and verify [retention visibility and physical cleanup](../product/acceptance-criteria.md#ac-036) with controlled evidence. |

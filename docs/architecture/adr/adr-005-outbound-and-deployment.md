@@ -18,12 +18,12 @@ Production runs on a single Linux host with Docker Engine and Docker Compose. Lo
 <a id="ad-014"></a>
 ### AD-014 — Check Worker Execution Guard
 
-Use one check-worker container with multiple prefork processes and shared OS execution and start locks. A subsequent execution requires proof that the previous execution has ended. For a marked attempt, confirm socket closure or exact process exit before recovery. Lease expiry alone cannot authorize execution. The mandatory Stage 04 [execution guard spike](../backend-design.md#execution-guard-spike) is pending.
+Use one check-worker container with multiple prefork processes and shared OS execution and start locks. A subsequent execution requires proof that the previous execution has ended. For a marked attempt, confirm socket closure or exact process exit before recovery. Lease expiry alone cannot authorize execution. The mandatory Stage 04 [execution guard spike](../../development/technical-spikes.md#6-worker-execution-guard) passed.
 
 <a id="ad-015"></a>
 ### AD-015 — Host-managed Network Egress
 
-Pair application-level destination verification with Linux host-managed IPv4 and IPv6 outbound restrictions. The mandatory Stage 04 [HTTPX transport and IPv4/IPv6 egress spikes](../security-design.md#mandatory-outbound-spike) are pending.
+Pair application-level destination verification with Linux host-managed IPv4 and IPv6 outbound restrictions. The mandatory Stage 04 [HTTPX transport](../../development/technical-spikes.md#4-httpx-secure-transport) and [IPv4/IPv6 egress](../../development/technical-spikes.md#5-ipv4ipv6-egress-enforcement) spikes passed.
 
 <a id="ad-016"></a>
 ### AD-016 — Scheduler & Control Worker

@@ -1,0 +1,113 @@
+# Disposable Linux verification of the approved service topology.
+x-worker-verification: &worker-verification
+  image: ${COMPOSE_PROJECT_NAME:?}-spike:stage04
+  entrypoint: [python, /spikes/topology_fixture.py, gate]
+  environment:
+    PYTHONPATH: /spikes
+  volumes:
+    - ./spikes:/spikes:ro
+    - ${IP007_LAB:?}/admission:/admission:ro
+
+x-target: &target
+  image: ${COMPOSE_PROJECT_NAME:?}-spike:stage04
+  init: true
+  read_only: true
+  cap_drop: [ALL]
+  sysctls:
+    net.ipv4.ip_unprivileged_port_start: "0"
+  security_opt: [no-new-privileges:true]
+  volumes:
+    - ./spikes:/spikes:ro
+    - ${IP007_LAB:?}/tls:/tls:ro
+  command: [python, /spikes/topology_fixture.py, target]
+
+services:
+  nginx:
+    ports: !override
+      - "10.213.51.1:18080:8080"
+      - "[fd42:213:51::1]:18080:8080"
+    volumes:
+      - ${IP007_LAB:?}/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+  postgres:
+    networks:
+      control:
+        ipv4_address: 10.213.50.2
+        ipv6_address: fd42:213:50::2
+  rabbitmq:
+    networks:
+      control:
+        ipv4_address: 10.213.50.3
+        ipv6_address: fd42:213:50::3
+  worker-checks:
+    <<: *worker-verification
+    dns: [10.213.51.2]
+    networks:
+      control:
+        ipv4_address: 10.213.50.10
+        ipv6_address: fd42:213:50::10
+      check-egress:
+        ipv4_address: 10.213.51.10
+        ipv6_address: fd42:213:51::10
+    command: [checks, celery, -A, "infrapulse.worker:app", worker, -Q, check, --concurrency=2, -n, "checks@%h", --pidfile=/tmp/infrapulse-worker.pid, --include=topology_fixture]
+  worker-notifications:
+    <<: *worker-verification
+    dns: [10.213.52.2]
+    networks:
+      control:
+        ipv4_address: 10.213.50.11
+        ipv6_address: fd42:213:50::11
+      provider-egress:
+        ipv4_address: 10.213.52.11
+        ipv6_address: fd42:213:52::11
+    command: [notifications, celery, -A, "infrapulse.worker:app", worker, -Q, notification, --concurrency=2, -n, "notifications@%h", --pidfile=/tmp/infrapulse-worker.pid]
+  check-target:
+    <<: *target
+    networks:
+      check-egress:
+        ipv4_address: 10.213.51.2
+        ipv6_address: fd42:213:51::2
+  provider-target:
+    <<: *target
+    networks:
+      provider-egress:
+        ipv4_address: 10.213.52.2
+        ipv6_address: fd42:213:52::2
+  denied-target:
+    <<: *target
+    networks:
+      check-egress:
+        ipv4_address: 10.213.51.3
+        ipv6_address: fd42:213:51::3
+      provider-egress:
+        ipv4_address: 10.213.52.3
+        ipv6_address: fd42:213:52::3
+
+networks:
+  edge:
+    enable_ipv6: true
+  control:
+    enable_ipv6: true
+    driver_opts:
+      com.docker.network.bridge.name: ip007-control
+    ipam:
+      config:
+        - subnet: 10.213.50.0/24
+          ip_range: 10.213.50.128/25
+        - subnet: fd42:213:50::/64
+          ip_range: fd42:213:50:0:8000::/80
+  check-egress:
+    enable_ipv6: true
+    driver_opts:
+      com.docker.network.bridge.name: ip007-check
+    ipam:
+      config:
+        - subnet: 10.213.51.0/24
+        - subnet: fd42:213:51::/64
+  provider-egress:
+    enable_ipv6: true
+    driver_opts:
+      com.docker.network.bridge.name: ip007-provider
+    ipam:
+      config:
+        - subnet: 10.213.52.0/24
+        - subnet: fd42:213:52::/64

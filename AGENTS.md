@@ -7,7 +7,8 @@ Repository documentation is the primary source of project context. Before work, 
 - Stage 01 — Product Discovery is COMPLETED AND APPROVED.
 - Stage 02 — System Design is COMPLETED AND APPROVED.
 - Stage 03 — UI/UX is COMPLETED AND APPROVED.
-- Stage 04 — Development Setup is PENDING.
+- Stage 04 — Development Setup is COMPLETED AND APPROVED.
+- Stage 05 — Backend is PENDING.
 - IP-000 — Project Context Initialization is accepted.
 - IP-001 — Project Initialization Baseline Corrections is complete and merged.
 - IP-002 — Product Discovery Decision Review is approved.
@@ -15,8 +16,8 @@ Repository documentation is the primary source of project context. Before work, 
 - IP-004 — Product Requirements Finalization is COMPLETED AND MERGED.
 - IP-005 — System Design and Architecture is COMPLETED AND APPROVED.
 - IP-006 — UI/UX Design is COMPLETED AND APPROVED.
-- Next task: IP-007 — Development Environment Setup.
-- Application implementation has not started. Explicit owner authorization is required before implementation.
+- IP-007 — Development Environment Setup is COMPLETED AND APPROVED. See [IP-007 Final Owner Acceptance](docs/project/decision-register.md#ip-007-verification).
+- Stage 04 provides a development foundation. Explicit owner authorization is required to start Stage 05.
 
 ## Product requirements
 
@@ -41,6 +42,7 @@ Task → Implementation → Self-validation → Owner Review → Commit → Pull
 - CRITICAL and material HIGH defects block acceptance. Fix MEDIUM defects within scope and document any that require material expansion. LOW defects and optional improvements do not block acceptance.
 - Keep reports compact and evidence-based. Use the repository instructions directly so task prompts can focus on the task. Obtain owner approval for material product and architectural decisions.
 - Preserve GitHub Flow, Conventional Commits, required CI, automated tests, security, ADRs and change control. Follow the [development workflow](docs/development/workflow.md).
+- Follow the [main branch protection rules](docs/development/workflow.md#main-branch-protection) and obtain manual Owner Approval before merging.
 
 ## Working rules
 - Follow the current issue, acceptance criteria and approved scope. Ask about contradictions or missing requirements; do not silently invent product behavior.

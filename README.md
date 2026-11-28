@@ -7,7 +7,8 @@ Open-source, self-hosted infrastructure and API monitoring platform with a web i
 - Stage 01 — Product Discovery is COMPLETED AND APPROVED.
 - Stage 02 — System Design is COMPLETED AND APPROVED.
 - Stage 03 — UI/UX is COMPLETED AND APPROVED.
-- Stage 04 — Development Setup is PENDING.
+- Stage 04 — Development Setup is COMPLETED AND APPROVED.
+- Stage 05 — Backend is PENDING.
 - IP-000 — Project Context Initialization is accepted.
 - IP-001 — Project Initialization Baseline Corrections is complete and merged.
 - IP-002 — Product Discovery Decision Review is approved.
@@ -15,8 +16,11 @@ Open-source, self-hosted infrastructure and API monitoring platform with a web i
 - IP-004 — Product Requirements Finalization is COMPLETED AND MERGED.
 - IP-005 — System Design and Architecture is COMPLETED AND APPROVED.
 - IP-006 — UI/UX Design is COMPLETED AND APPROVED.
-- Next task: IP-007 — Development Environment Setup.
-- Application implementation has not started.
+- IP-007 — Development Environment Setup is COMPLETED AND APPROVED. See [IP-007 Final Owner Acceptance](docs/project/decision-register.md#ip-007-verification).
+
+## Development setup
+
+Run `make install` and `make up`, then open <http://127.0.0.1:8080/>. See the [setup guide](docs/development/setup.md) and [Stage 04 spike reports](docs/development/technical-spikes.md).
 
 ## Project documentation
 - [Project Charter](docs/project/charter.md)

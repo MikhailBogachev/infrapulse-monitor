@@ -45,7 +45,7 @@ Lock order is execution lock → start lock where needed → monitor row → exe
 
 ### Execution guard spike
 
-The mandatory Stage 04 spike is pending and gates engine implementation. Verify shared lock identity across containers, independent opens after fork, descriptor lifetime, process death, and behavior when a DB session drops. Force lease expiry and a duplicate while the original socket is active, verify that a killed child is fully exited before a successor dials, pause a held queued job, and race pause against initial dial and write. Verify from controlled client and target traces that there is no concurrent probe and no new start after a committed pause. Prove transport phase hooks, bounded lock wait/cancellation, hard deadline and container shutdown. The guard requires the [outbound spike](security-design.md#mandatory-outbound-spike) and the approved host arrangement.
+The mandatory [Stage 04 execution guard spike](../development/technical-spikes.md#6-worker-execution-guard) passed in the controlled fixtures. Verify shared lock identity across containers, independent opens after fork, descriptor lifetime, process death, and behavior when a DB session drops. Force lease expiry and a duplicate while the original socket is active, verify that a killed child is fully exited before a successor dials, pause a held queued job, and race pause against initial dial and write. Verify from controlled client and target traces that there is no concurrent probe and no new start after a committed pause. Prove transport phase hooks, bounded lock wait/cancellation, hard deadline and container shutdown. The guard requires the [outbound spike](security-design.md#mandatory-outbound-spike) and the approved host arrangement.
 
 ## Outbox and message recovery
 
@@ -57,7 +57,7 @@ Consumers use late acknowledgements, low prefetch and explicit handling of worke
 
 ### Broker semantics spike
 
-The mandatory Stage 04 spike is pending. On the pinned RabbitMQ and Celery stack, verify confirms and unroutable returns, durable routing and reconciliation, late acknowledgement with worker loss, bounded redelivery and dead-letter behavior before implementing broker reliability.
+The mandatory [Stage 04 RabbitMQ spike](../development/technical-spikes.md#3-rabbitmq-delivery-semantics) passed. On the pinned RabbitMQ and Celery stack, verify confirms and unroutable returns, durable routing and reconciliation, late acknowledgement with worker loss, bounded redelivery and dead-letter behavior before implementing broker reliability.
 
 ## Incident engine
 
