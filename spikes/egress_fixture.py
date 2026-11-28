@@ -2,10 +2,15 @@
 
 import errno
 import ipaddress
+import logging
+import os
+import selectors
+import signal
 import socket
 import sys
-import threading
 import time
+from collections.abc import Callable
+from contextlib import ExitStack
 from pathlib import Path
 
 TARGET_PORT = 18080
@@ -36,33 +41,83 @@ def family(address: str) -> socket.AddressFamily:
     return socket.AF_INET6 if ":" in address else socket.AF_INET
 
 
-def serve(address: str, port: int, bound: threading.Event | None = None) -> None:
+def namespace() -> str:
+    path = Path("/proc/self/ns/net")
+    return str(path.readlink()) if path.is_symlink() else "unavailable"
+
+
+def bind_listener(stack: ExitStack, address: str, port: int) -> socket.socket:
     deadline = time.monotonic() + 5
-    with socket.socket(family(address)) as listener:
-        if family(address) == socket.AF_INET6:
-            listener.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 1)
-        while True:
-            try:
-                listener.bind((address, port))
-                break
-            except OSError as error:
-                if error.errno != errno.EADDRNOTAVAIL or time.monotonic() >= deadline:
-                    raise
+    listener = stack.enter_context(socket.socket(family(address)))
+    if family(address) == socket.AF_INET6:
+        listener.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 1)
+    while True:
+        try:
+            listener.bind((address, port))
+            listener.listen()
+            return listener
+        except OSError as error:
+            if error.errno == errno.EADDRNOTAVAIL and time.monotonic() < deadline:
                 time.sleep(0.05)
-        listener.listen()
-        if bound is not None:
-            bound.set()
-        while True:
-            peer, _ = listener.accept()
-            with peer:
-                try:
-                    peer.sendall(b"ip007")
-                except (BrokenPipeError, ConnectionResetError):
-                    pass
+                continue
+            logging.error(
+                "Bind failed pid=%s netns=%s address=%s:%s", os.getpid(), namespace(), address, port
+            )
+            for path in (Path("/proc/net/tcp"), Path("/proc/net/tcp6")):
+                if path.exists():
+                    for row in path.read_text().splitlines()[1:]:
+                        local, remote, state = row.split()[1:4]
+                        if local.endswith(f":{port:04X}") or remote.endswith(f":{port:04X}"):
+                            logging.error(
+                                "%s local=%s remote=%s state=%s inode=%s",
+                                path,
+                                local,
+                                remote,
+                                state,
+                                row.split()[9],
+                            )
+            raise
+
+
+def shutdown_requested() -> Callable[[], bool]:
+    stopping = False
+
+    def stop(_signum: int, _frame: object) -> None:
+        nonlocal stopping
+        stopping = True
+
+    signal.signal(signal.SIGTERM, stop)
+    signal.signal(signal.SIGINT, stop)
+    return lambda: stopping
+
+
+def serve(identity: str, addresses: tuple[str, ...], ports: tuple[int, ...]) -> None:
+    stopping = shutdown_requested()
+    print(f"Fixture starting identity={identity} pid={os.getpid()} netns={namespace()}", flush=True)
+    try:
+        with ExitStack() as stack, selectors.DefaultSelector() as selector:
+            for port in ports:
+                for address in addresses:
+                    selector.register(bind_listener(stack, address, port), selectors.EVENT_READ)
+            print(
+                f"Fixture ready identity={identity} addresses={addresses} ports={ports}", flush=True
+            )
+            payload = f"{identity}\n".encode()
+            while not stopping():
+                for key, _ in selector.select(timeout=0.1):
+                    peer, _ = key.fileobj.accept()
+                    with peer:
+                        peer.settimeout(0.5)
+                        try:
+                            peer.sendall(payload)
+                        except (BrokenPipeError, ConnectionResetError):
+                            pass
+    finally:
+        print(f"Fixture stopped identity={identity} pid={os.getpid()}", flush=True)
 
 
 def handshake(
-    address: str, port: int, *, verify_payload: bool = False, timeout: float = 0.5
+    address: str, port: int, *, identity: str | None = None, timeout: float = 0.5
 ) -> bool:
     with socket.socket(family(address)) as probe:
         probe.settimeout(timeout)
@@ -70,20 +125,23 @@ def handshake(
             probe.connect((address, port))
         except OSError:
             return False
-        if verify_payload:
-            assert probe.recv(5, socket.MSG_WAITALL) == b"ip007"
+        if identity is not None:
+            expected = f"{identity}\n".encode()
+            with probe.makefile("rb") as reader:
+                actual = reader.readline(len(expected) + 1)
+            assert actual == expected, f"Fixture identity mismatch {address}:{port}: {actual!r}"
         return True
 
 
-def ready(addresses: tuple[str, ...], ports: tuple[int, ...]) -> None:
+def ready(identity: str, addresses: tuple[str, ...], ports: tuple[int, ...]) -> None:
     for port in ports:
         for address in addresses:
             deadline = time.monotonic() + 5
-            while not handshake(address, port, verify_payload=True):
+            while not handshake(address, port, identity=identity):
                 if time.monotonic() >= deadline:
-                    raise AssertionError(f"Expected reachable fixture {address}:{port}")
+                    raise AssertionError(f"Expected reachable fixture {identity} {address}:{port}")
                 time.sleep(0.1)
-            print(f"Allowed {address}:{port}", flush=True)
+            print(f"Allowed {address}:{port} identity={identity}", flush=True)
 
 
 def refused(addresses: tuple[str, ...], port: int) -> None:
@@ -100,30 +158,34 @@ def wait_for(path: Path) -> None:
 
 
 def watch_startup() -> None:
+    stopping = shutdown_requested()
     rounds = 0
     post_attach = 0
-    while not FINISH.exists():
-        if ARMED.exists() and not BOUND.exists():
-            for address in LOOPBACK[:2]:
-                listening = threading.Event()
-                threading.Thread(
-                    target=serve, args=(address, TARGET_PORT, listening), daemon=True
-                ).start()
-                assert listening.wait(3), f"Loopback listener did not bind on {address}"
-            BOUND.touch()
-        attached = READY.exists()
-        for address in DENIED:
-            assert not handshake(address, TARGET_PORT, timeout=0.04), (
-                f"Forbidden connection during startup/recreation: {address}:{TARGET_PORT}"
-            )
-        rounds += 1
-        post_attach += attached
-        STARTED.touch()
-        time.sleep(0.025)
+    print(f"Startup sentinel pid={os.getpid()} netns={namespace()}", flush=True)
+    with ExitStack() as listeners:
+        while not FINISH.exists() and not stopping():
+            if ARMED.exists() and not BOUND.exists():
+                for address in LOOPBACK[:2]:
+                    bind_listener(listeners, address, TARGET_PORT)
+                print("Startup loopback listeners bound", flush=True)
+                BOUND.touch()
+            attached = READY.exists()
+            for address in DENIED:
+                assert not handshake(address, TARGET_PORT, timeout=0.04), (
+                    f"Forbidden connection during startup/recreation: {address}:{TARGET_PORT}"
+                )
+            rounds += 1
+            post_attach += attached
+            STARTED.touch()
+            time.sleep(0.025)
+    if stopping():
+        return
     assert rounds > post_attach > 0, (rounds, post_attach)
     print(f"Startup refusal sweeps={rounds}, after attachment={post_attach}", flush=True)
     FINISHED.touch()
-    threading.Event().wait()
+    while not stopping():
+        time.sleep(0.1)
+    print(f"Startup sentinel stopped pid={os.getpid()} netns={namespace()}", flush=True)
 
 
 if __name__ == "__main__":
@@ -138,6 +200,7 @@ if __name__ == "__main__":
     elif mode == "mark-ready":
         wait_for(BOUND)
         READY.touch()
+        print(f"Policy ready netns={namespace()}", flush=True)
     elif mode == "finish-startup":
         FINISH.touch()
         wait_for(FINISHED)
@@ -145,8 +208,9 @@ if __name__ == "__main__":
         if not READY.exists():
             print("Probe workload refused before policy readiness", flush=True)
             sys.exit(3)
-        ready(ALLOWED, (TARGET_PORT,))
-        ready((*CONTROL, "::ffff:10.72.0.2"), (CONTROL_PORT,))
+        (run_id,) = argv
+        ready(f"{run_id}-allowed", ALLOWED, (TARGET_PORT,))
+        ready(f"{run_id}-control", (*CONTROL, "::ffff:10.72.0.2"), (CONTROL_PORT,))
         # The fixture sends directly from the worker without the application's URL policy.
         refused(DENIED, TARGET_PORT)
         refused(ALLOWED + HOST, CONTROL_PORT)
@@ -157,20 +221,12 @@ if __name__ == "__main__":
         refused(LOOPBACK + ALLOWED + CONTROL, TARGET_PORT)
         refused(CONTROL, CONTROL_PORT)
     else:
-        ipv4, ipv6, *raw_ports = argv
+        identity, ipv4, ipv6, *raw_ports = argv
         addresses = tuple(str(ipaddress.ip_address(address)) for address in (ipv4, ipv6))
         ports = tuple(map(int, raw_ports))
         if mode == "ready":
-            ready(addresses, ports)
+            ready(identity, addresses, ports)
         elif mode == "serve":
-            threads = [
-                threading.Thread(target=serve, args=(address, port))
-                for address in addresses
-                for port in ports
-            ]
-            for thread in threads:
-                thread.start()
-            for thread in threads:
-                thread.join()
+            serve(identity, addresses, ports)
         else:
             raise ValueError(f"Unknown fixture mode {mode}")

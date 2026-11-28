@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Run on native Linux in fresh mount and network namespaces.
-set -euo pipefail
+set -Eeuo pipefail
 if [[ $(uname -s) != Linux || $EUID != 0 || ${1:-} == "" ]]; then
   echo "Use the documented isolated Linux invocation." >&2
   exit 2
@@ -31,7 +31,10 @@ image=python:3.13.12-slim-bookworm
 pids=()
 worker=
 worker_pid=
-gateway=
+run_id=$(cat /proc/sys/kernel/random/uuid)
+echo "Synthetic fixture run=$run_id pid=$$ netns=$(readlink /proc/self/ns/net) mountns=$(readlink /proc/self/ns/mnt)"
+nft --version
+ip -Version
 cleanup() {
   local status=$?
   trap - EXIT
@@ -42,29 +45,47 @@ cleanup() {
       docker logs "$worker" || true
     fi
   fi
-  if [[ -n $worker ]] && ! docker rm -f "$worker" >/dev/null; then
-    status=1
-  fi
-  if [[ -n $gateway ]]; then
-    kill "$gateway" 2>/dev/null || true
-    wait "$gateway" 2>/dev/null || true
+  if [[ -n $worker ]]; then
+    if [[ $(docker inspect -f '{{.State.Running}}' "$worker") == true ]]; then
+      docker stop -t 3 "$worker" >/dev/null || status=1
+      local code
+      code=$(docker wait "$worker") || status=1
+      echo "Stopped generation=$worker exit=$code"
+      [[ $code == 0 ]] || status=1
+      docker logs --tail 2 "$worker" || status=1
+    fi
+    docker rm -f "$worker" >/dev/null || status=1
   fi
   for pid in "${pids[@]}"; do kill "$pid" 2>/dev/null || true; done
-  for pid in "${pids[@]}"; do wait "$pid" 2>/dev/null || true; done
+  for pid in "${pids[@]}"; do
+    if ! wait "$pid"; then
+      echo "Fixture did not exit cleanly pid=$pid" >&2
+      status=1
+    fi
+    echo "Fixture reaped pid=$pid"
+  done
   exit "$status"
 }
 trap cleanup EXIT
+trap 'echo "Synthetic assertion/command failed at line $LINENO: $BASH_COMMAND" >&2' ERR
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
 ip link set lo up
 sysctl -qw net.ipv4.ip_forward=1 net.ipv6.conf.all.forwarding=1
 
 attach() {
   local pid=$1 subnet=$2 host=$3 router="router$2"
-  ip link add "$router" type veth peer name edge
+  local link=$router
+  if [[ $subnet == 70 ]]; then link=worker70; fi
+  ip link add "$link" type veth peer name edge
   ip link set edge netns "$pid"
-  ip addr add "10.$subnet.0.1/24" dev "$router"
-  ip -6 addr add "fd00:$subnet::1/64" dev "$router" nodad
-  ip link set "$router" up
+  if [[ $subnet == 70 ]]; then
+    ip link set "$link" master "$router"
+  else
+    gateway_addresses "$subnet" "$router"
+  fi
+  ip link set "$link" up
   nsenter -t "$pid" -n ip addr add "10.$subnet.0.$host/24" dev edge
   nsenter -t "$pid" -n ip -6 addr add "fd00:$subnet::$host/64" dev edge nodad
   nsenter -t "$pid" -n ip link set edge up
@@ -72,10 +93,16 @@ attach() {
   nsenter -t "$pid" -n ip -6 route add default via "fd00:$subnet::1"
 }
 
+gateway_addresses() {
+  local subnet=$1 router=$2
+  ip addr add "10.$subnet.0.1/24" dev "$router"
+  ip -6 addr add "fd00:$subnet::1/64" dev "$router" nodad
+}
+
 endpoint() {
-  local subnet=$1 ipv4=$2 ipv6=$3
-  shift 3
-  unshare --net -- python3 "$fixture" serve "$ipv4" "$ipv6" "$@" &
+  local subnet=$1 role=$2 ipv4=$3 ipv6=$4
+  shift 4
+  unshare --net -- python3 "$fixture" serve "$run_id-$role" "$ipv4" "$ipv6" "$@" &
   local pid=$!
   pids+=("$pid")
   local deadline=$((SECONDS+5))
@@ -85,8 +112,9 @@ endpoint() {
     (( SECONDS < deadline ))
     sleep 0.05
   done
+  echo "Fixture attached identity=$run_id-$role pid=$pid netns=$namespace"
   attach "$pid" "$subnet" 2
-  python3 "$fixture" ready "$ipv4" "$ipv6" "$@"
+  python3 "$fixture" ready "$run_id-$role" "$ipv4" "$ipv6" "$@"
 }
 
 apply_ruleset() {
@@ -123,9 +151,9 @@ table inet ip007_gateway {
 }
 RULES
 
-endpoint 71 10.71.0.2 fd00:71::2 18080
-endpoint 72 10.72.0.2 fd00:72::2 18080 18082
-endpoint 73 10.73.0.2 fd00:73::2 18080
+endpoint 71 allowed 10.71.0.2 fd00:71::2 18080
+endpoint 72 control 10.72.0.2 fd00:72::2 18080 18082
+endpoint 73 blocked 10.73.0.2 fd00:73::2 18080
 
 worker_fixture() {
   docker exec "$worker" python /fixture.py "$@"
@@ -147,9 +175,9 @@ provision() {
   nsenter -t "$worker_pid" -n sysctl -qw net.ipv6.conf.all.disable_ipv6=0
   worker_fixture wait-startup
   worker_fixture disconnected
-  worker_fixture check-after-policy || status=$?
+  worker_fixture check-after-policy "$run_id" || status=$?
   [[ $status == 3 ]]
-  echo "Container ${worker:0:12} starts disconnected"
+  echo "Container $worker starts disconnected pid=$worker_pid netns=$(readlink "/proc/$worker_pid/ns/net")"
 
   # The host controls this namespace; the test process has no network capabilities.
   apply_ruleset nsenter -t "$worker_pid" -n <<'RULES'
@@ -181,17 +209,20 @@ RULES
   [[ $(nsenter -t "$worker_pid" -n ip -4 -o addr show dev edge) == *"10.70.0.$host/24"* ]]
   [[ $(nsenter -t "$worker_pid" -n ip -6 -o addr show dev edge) == *"fd00:70::$host/64"* ]]
   worker_fixture mark-ready
+  echo "Policy ready generation=$worker version=ip007_worker_v1"
 }
 
-gateway_listener() {
-  python3 "$fixture" serve 10.70.0.1 fd00:70::1 18080 &
-  gateway=$!
-  python3 "$fixture" ready 10.70.0.1 fd00:70::1 18080
-}
+# The gateway owns its addresses and listeners throughout worker replacement.
+ip link add router70 type bridge
+gateway_addresses 70 router70
+ip link set router70 up
+python3 "$fixture" serve "$run_id-gateway" 10.70.0.1 fd00:70::1 18080 &
+pids+=("$!")
+python3 "$fixture" ready "$run_id-gateway" 10.70.0.1 fd00:70::1 18080
 
 coverage() {
   local counter
-  worker_fixture check-after-policy
+  worker_fixture check-after-policy "$run_id"
   for counter in local_drops denied_v4 denied_v6 default_drops; do
     nsenter -t "$worker_pid" -n nft list counter inet ip007_worker_v1 "$counter" |
       grep -E 'packets [1-9][0-9]*'
@@ -202,7 +233,6 @@ coverage() {
 }
 
 provision 2
-gateway_listener
 coverage
 for counter in host_drops translated_v4 translated_v6; do
   nft list counter inet ip007_gateway "$counter" | grep -E 'packets [1-9][0-9]*'
@@ -211,14 +241,15 @@ done
 
 old=$worker
 old_namespace=$(readlink "/proc/$worker_pid/ns/net")
-kill "$gateway"
-wait "$gateway" || [[ $? == 143 ]]
-gateway=
-docker rm -f "$old" >/dev/null
+docker stop -t 1 "$old" >/dev/null
+echo "Stopped generation=$old netns=$old_namespace exit=$(docker wait "$old")"
+[[ $(docker inspect -f '{{.State.Status}} {{.State.Pid}} {{.State.ExitCode}}' "$old") == 'exited 0 0' ]]
+docker logs --tail 2 "$old"
+docker rm "$old" >/dev/null
 worker=
 # Kernel teardown removes both ends when the removed Docker namespace is released.
 deadline=$((SECONDS+5))
-while ip link show dev router70 >/dev/null 2>&1; do
+while ip link show dev worker70 >/dev/null 2>&1; do
   if (( SECONDS >= deadline )); then
     echo "The old worker attachment survived removal." >&2
     exit 1
@@ -226,8 +257,8 @@ while ip link show dev router70 >/dev/null 2>&1; do
   sleep 0.05
 done
 provision 3
+python3 "$fixture" ready "$run_id-gateway" 10.70.0.1 fd00:70::1 18080
 [[ $worker != "$old" && $(readlink "/proc/$worker_pid/ns/net") != "$old_namespace" ]]
-gateway_listener
 coverage
 for counter in host_drops translated_v4 translated_v6; do
   nft list counter inet ip007_gateway "$counter" | grep -E 'packets [1-9][0-9]*'

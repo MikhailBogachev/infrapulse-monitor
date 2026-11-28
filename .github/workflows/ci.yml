@@ -31,6 +31,7 @@ jobs:
       - run: uv run --locked ruff format --check .
       - run: uv run --locked mypy
       - run: uv run --locked pytest -m "not integration"
+      - run: uv run --locked pytest spikes/test_egress_lifecycle.py
 
   frontend:
     runs-on: ubuntu-24.04
@@ -102,19 +103,45 @@ jobs:
         with:
           persist-credentials: false
       - name: Install disposable runner tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y nftables iproute2
-      - name: Preload the fixture image
-        run: docker pull python:3.13.12-slim-bookworm
-      - name: Verify Linux container egress
         shell: bash
         run: |
           mkdir -p spike-logs
-          sudo make spike-egress 2>&1 | tee spike-logs/linux-egress.log
+          sudo apt-get update 2>&1 | tee spike-logs/bootstrap.log
+          sudo apt-get install -y nftables iproute2 2>&1 | tee -a spike-logs/bootstrap.log
+      - name: Preload the fixture image
+        shell: bash
+        run: docker pull python:3.13.12-slim-bookworm 2>&1 | tee -a spike-logs/bootstrap.log
+      - name: Verify Linux container egress
+        shell: bash
+        run: |
+          sudo make spike-egress 2>&1 | tee spike-logs/linux-egress-1.log
+          sudo make spike-egress 2>&1 | tee spike-logs/linux-egress-2.log
       - name: Preserve egress diagnostics
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: linux-egress-spike
+          path: spike-logs/
+
+  linux-compose-topology:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - name: Install disposable runner tools
+        shell: bash
+        run: |
+          mkdir -p spike-logs
+          sudo apt-get update 2>&1 | tee spike-logs/bootstrap.log
+          sudo apt-get install -y nftables iproute2 2>&1 | tee -a spike-logs/bootstrap.log
+      - name: Verify the supported Compose topology on native Linux
+        shell: bash
+        run: sudo make spike-topology 2>&1 | tee spike-logs/linux-compose-topology.log
+      - name: Preserve Compose topology diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: linux-compose-topology
           path: spike-logs/

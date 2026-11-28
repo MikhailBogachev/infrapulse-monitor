@@ -80,9 +80,13 @@ spike-guard:
 	bash spikes/guard_lifecycle.sh $(SPIKE_COMPOSE)
 
 spike-egress:
-	unshare --mount --net --fork -- bash spikes/egress.sh "$$(readlink /proc/self/ns/net)"
+	unshare --mount --net -- bash spikes/egress.sh "$$(readlink /proc/self/ns/net)"
 
 .PHONY: browser-container
 browser-container:
 	$(SPIKE_COMPOSE) build browser
 	$(SPIKE_COMPOSE) run --rm --no-deps -T browser
+
+.PHONY: spike-topology
+spike-topology:
+	bash spikes/topology.sh
