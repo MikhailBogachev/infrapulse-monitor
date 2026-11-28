@@ -32,6 +32,8 @@ table="ip007_${COMPOSE_PROJECT_NAME##*-}"
 host_rules=0
 wire_rules=0
 host_digest=
+nginx_pid=
+source spikes/topology_network.sh
 declare -A worker_digests
 host_listener=
 checks=
@@ -44,6 +46,13 @@ safe_logs() {
 cleanup() {
   local status=$?
   trap - EXIT
+  stop_publication_trace || status=1
+  if (( listener_rules )); then
+    nsenter -t "$nginx_pid" -n nft list table inet "$table" || status=1
+  fi
+  if (( status && host_rules )); then
+    publication_snapshot || true
+  fi
   if (( host_rules )); then
     nft list table inet "$table" || status=1
   fi
@@ -60,7 +69,9 @@ cleanup() {
     fi
   done
   "${compose[@]}" ps -a || status=1
-  for service in worker-checks worker-notifications check-target provider-target denied-target nginx; do
+  local services=(worker-checks worker-notifications check-target provider-target denied-target nginx)
+  if (( status )); then services+=(postgres rabbitmq redis migrate api scheduler); fi
+  for service in "${services[@]}"; do
     local id
     id=$("${compose[@]}" ps -a -q "$service") || status=1
     if [[ -n $id ]]; then safe_logs "$id" || status=1; fi
@@ -70,6 +81,7 @@ cleanup() {
     wait "$host_listener" || status=1
     echo "Host fixture reaped pid=$host_listener"
   fi
+  if (( probe_namespace )); then ip netns delete "$probe_ns" || status=1; fi
   "${compose[@]}" down -v || status=1
   if (( host_rules )); then nft delete table inet "$table" || status=1; fi
   if (( wire_rules )); then nft delete table bridge "$table" || status=1; fi
@@ -113,27 +125,8 @@ nginx=$("${compose[@]}" ps -q nginx)
 edge="{{with index .NetworkSettings.Networks \"${COMPOSE_PROJECT_NAME}_edge\"}}"
 read -r nginx_v4 nginx_v6 < <(docker inspect -f "$edge{{.IPAddress}} {{.GlobalIPv6Address}}{{end}}" "$nginx")
 [[ -n $nginx_v4 && -n $nginx_v6 ]]
-apply <<RULES
-table inet $table {
-  counter published_v4 {}
-  counter published_v6 {}
-  counter host_v4 {}
-  counter host_v6 {}
-  chain input {
-    type filter hook input priority -5; policy accept;
-    iifname "ip007-check" ip daddr 10.213.51.1 tcp dport 18081 counter name host_v4 drop
-    iifname "ip007-check" ip6 daddr fd42:213:51::1 tcp dport 18081 counter name host_v6 drop
-    iifname { "ip007-control", "ip007-check", "ip007-provider" } meta l4proto tcp drop
-  }
-  chain forward {
-    type filter hook forward priority -5; policy accept;
-    iifname "ip007-check" ip daddr $nginx_v4 tcp dport 8080 ct status dnat ct original proto-dst 18080 counter name published_v4 drop
-    iifname "ip007-check" ip6 daddr $nginx_v6 tcp dport 8080 ct status dnat ct original proto-dst 18080 counter name published_v6 drop
-    iifname "ip007-check" oifname != "ip007-check" drop
-    iifname "ip007-provider" oifname != "ip007-provider" drop
-  }
-}
-RULES
+nginx_pid=$(docker inspect -f '{{.State.Pid}}' "$nginx")
+host_policy
 host_rules=1
 host_digest=$(nft -s list table inet "$table" | sha256sum)
 
@@ -380,11 +373,16 @@ wire_gate delete 51 10
 wire_gate delete 52 11
 wait_healthy "$checks" checks
 wait_healthy "$notifications" notifications
+prepare_publication_probe
+timeout 25s stdbuf -oL nft monitor trace > "$IP007_LAB/publication.trace" 2>&1 &
+trace_pid=$!
+verify_worker_gateway "$checks"
+verify_publication 4
+verify_publication 6
+stop_publication_trace
+publication_snapshot
 fixture "$checks" coverage checks
 fixture "$notifications" coverage notifications
-for counter in published_v4 published_v6 host_v4 host_v6; do
-  nft list counter inet "$table" "$counter" | grep -E 'packets [1-9][0-9]*'
-done
 for container in "$checks" "$notifications"; do
   pid=$(docker inspect -f '{{.State.Pid}}' "$container")
   for counter in always_deny default_deny dns dns_reply; do
@@ -411,9 +409,21 @@ births=()
 owner=$(docker logs "$old" 2>&1 | sed -n 's/.*pid=\([0-9]*\).*locks label=old-generation .*/\1/p')
 [[ -n $owner ]]
 owner_found=0
+cgroup_type=$(cat "$cgroup/cgroup.type")
+echo "Previous cgroup $cgroup type=$cgroup_type"
+grep -Fx 'populated 1' "$cgroup/cgroup.events"
+# cgroup.procs is unavailable in a threaded cgroup. Snapshot process
+# leaders from cgroup.threads and use cgroup.events for the entire subtree.
+threads=$(cat "$cgroup/cgroup.threads")
+[[ -n $threads ]]
 while read -r process; do
-  if ! birth=$(identity "$process") || ! pidns=$(readlink "/proc/$process/ns/pid") ||
-     ! local_pid=$(awk '/^NSpid:/ {print $NF}' "/proc/$process/status"); then
+  if ! read -r leader local_pid < <(awk '
+    /^Tgid:/ { leader = $2 }
+    /^NSpid:/ { print leader, $NF }
+  ' "/proc/$process/status") || [[ $process != "$leader" ]]; then
+    continue
+  fi
+  if ! birth=$(identity "$process") || ! pidns=$(readlink "/proc/$process/ns/pid"); then
     # A transient Docker health check can exit while the snapshot is read.
     continue
   fi
@@ -422,7 +432,7 @@ while read -r process; do
   births+=("$birth")
   if [[ $local_pid == "$owner" ]]; then owner_found=1; fi
   echo "Previous process generation=$old pidns=$old_namespace pid=$process nspid=$local_pid start=$birth"
-done < "$cgroup/cgroup.procs"
+done <<< "$threads"
 (( ${#pids[@]} >= 4 && owner_found ))
 old_locks=$(docker logs "$old" 2>&1 | sed -n 's/.*locks label=old-generation \(execution=[0-9:]* start=[0-9:]*\).*/\1/p')
 [[ -n $old_locks ]]
@@ -441,8 +451,11 @@ docker kill --signal KILL "$old" >/dev/null
 [[ $(docker inspect -f '{{.State.Status}} {{.State.Pid}}' "$old") == 'exited 0' ]]
 generation_gone() {
   local index current
-  if [[ -e $cgroup/cgroup.events ]] && ! grep -Fx 'populated 0' "$cgroup/cgroup.events"; then
-    return 1
+  if [[ -d $cgroup ]]; then
+    grep -Fxq 'populated 0' "$cgroup/cgroup.events" || return 1
+    cgroup_state='populated 0'
+  else
+    cgroup_state=removed
   fi
   for index in "${!pids[@]}"; do
     current=$(identity "${pids[index]}") || current=
@@ -459,6 +472,7 @@ until generation_gone; do
 done
 wait_log "$target" 'close peer=.* label=old-generation$'
 safe_logs "$old"
+echo "Previous cgroup $cgroup state=$cgroup_state"
 echo "Confirmed stop of exact generation=$old pidns=$old_namespace and ${#pids[@]} processes"
 
 wire_gate add 51 10
@@ -467,6 +481,8 @@ start_worker checks checks
 fixture "$checks" held checks
 quarantine_counters
 refuse "$checks" checks replacement-stale stale-policy
+mv "$IP007_LAB/admission/checks.json" "$IP007_LAB/replaced-policy.json"
+refuse "$checks" checks replacement-missing missing-policy
 worker_rules "$checks" checks
 policy "$checks" checks "$old" ip007-compose-v1 300
 refuse "$checks" checks replacement-unconfirmed unconfirmed-generation
@@ -484,3 +500,4 @@ new_locks=$(docker logs "$checks" 2>&1 | sed -n 's/.*locks label=new-generation 
 [[ $new_locks == "$old_locks" ]]
 echo "Shared lock identity preserved: $new_locks"
 fixture "$checks" coverage checks
+verify_worker_gateway "$checks"

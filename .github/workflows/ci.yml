@@ -31,7 +31,7 @@ jobs:
       - run: uv run --locked ruff format --check .
       - run: uv run --locked mypy
       - run: uv run --locked pytest -m "not integration"
-      - run: uv run --locked pytest spikes/test_egress_lifecycle.py spikes/test_topology_diagnostics.py
+      - run: uv run --locked pytest spikes/test_egress_lifecycle.py spikes/test_topology_diagnostics.py spikes/test_topology_network.py
 
   frontend:
     runs-on: ubuntu-24.04
@@ -135,7 +135,7 @@ jobs:
         run: |
           mkdir -p spike-logs
           sudo apt-get update 2>&1 | tee spike-logs/bootstrap.log
-          sudo apt-get install -y nftables iproute2 2>&1 | tee -a spike-logs/bootstrap.log
+          sudo apt-get install -y nftables iproute2 conntrack 2>&1 | tee -a spike-logs/bootstrap.log
       - name: Verify the supported Compose topology on native Linux
         shell: bash
         run: sudo make spike-topology 2>&1 | tee spike-logs/linux-compose-topology.log

@@ -284,9 +284,6 @@ def coverage(role: str) -> None:
         log(f"Allowed raw mapped socket peer=::ffff:{primary[0]}:{PORT}")
     refused(denied + (f"::ffff:{denied[0]}",), PORT)
     refused(primary + denied, 444)
-    if role == "checks":
-        refused(("10.213.51.1", "fd42:213:51::1"), 18080)
-        refused(("10.213.51.1", "fd42:213:51::1"), 18081)
     for name, (ipv4, _, _) in zip(SERVICES, CONTROL, strict=True):
         dns_check(DNS, f"{name}.", ipv4)
     # Use the embedded resolver's configured, contained upstream. Direct calls
@@ -332,6 +329,10 @@ if __name__ == "__main__":
         sys.exit(0 if outbound(*args) else 3)
     elif mode == "coverage":
         coverage(*args)
+    elif mode == "gateway":
+        assert refusal("checks") is None
+        for port in (18080, 18081):
+            refused(("10.213.51.1", "fd42:213:51::1"), port)
     elif mode == "diagnose":
         diagnose(*args)
     elif mode == "held":
