@@ -36,6 +36,11 @@ declare -A worker_digests
 host_listener=
 checks=
 notifications=
+safe_logs() {
+  docker logs --tail 100 "$1" 2>&1 |
+    python3 spikes/topology_diagnostics.py "$INFRAPULSE_SECRETS_DIR" "$IP007_LAB/tls/key.pem"
+}
+
 cleanup() {
   local status=$?
   trap - EXIT
@@ -55,7 +60,11 @@ cleanup() {
     fi
   done
   "${compose[@]}" ps -a || status=1
-  "${compose[@]}" logs --no-color worker-checks worker-notifications check-target     provider-target denied-target nginx || status=1
+  for service in worker-checks worker-notifications check-target provider-target denied-target nginx; do
+    local id
+    id=$("${compose[@]}" ps -a -q "$service") || status=1
+    if [[ -n $id ]]; then safe_logs "$id" || status=1; fi
+  done
   if [[ -n $host_listener ]]; then
     kill "$host_listener" 2>/dev/null || true
     wait "$host_listener" || status=1
@@ -215,14 +224,18 @@ worker_rules() {
     ip daddr 10.213.51.1 tcp dport { 18080, 18081 } accept
     ip6 daddr fd42:213:51::1 tcp dport { 18080, 18081 } accept'
   fi
+  # Docker DNATs resolver requests in OUTPUT. Resolver replies traverse OUTPUT
+  # too, before the reverse translation in POSTROUTING.
   apply nsenter -t "$pid" -n <<RULES
 table inet ip007_worker {
   counter always_deny {}
   counter default_deny {}
   counter dns {}
+  counter dns_reply {}
   chain out {
     type filter hook output priority filter; policy drop;
-    ip daddr 127.0.0.11 ct status dnat meta l4proto { tcp, udp } ct original proto-dst 53 counter name dns accept
+    oifname "lo" ip daddr 127.0.0.11 ct direction original ct status dnat meta l4proto { tcp, udp } ct original proto-dst 53 counter name dns accept
+    oifname "lo" ip saddr 127.0.0.11 ct direction reply ct state established ct status dnat meta l4proto { tcp, udp } ct original ip daddr 127.0.0.11 ct original proto-dst 53 counter name dns_reply accept
     oifname "lo" counter name always_deny drop
     ip6 hoplimit 255 icmpv6 type { nd-neighbor-solicit, nd-neighbor-advert } accept
     ct state established,related accept
@@ -281,13 +294,51 @@ refuse() {
   [[ $events == "$before" && $events != *"request label=$label"* ]]
 }
 
+worker_snapshot() {
+  local container=$1 role=$2 pid peer id service
+  docker inspect -f 'status={{.State.Status}} pid={{.State.Pid}} exit={{.State.ExitCode}} health={{.State.Health.Status}} failures={{.State.Health.FailingStreak}}{{range .State.Health.Log}}{{println}}healthcheck end={{.End}} exit={{.ExitCode}}{{end}}' "$container" || true
+  docker top "$container" -eo pid,ppid,stat,comm || true
+  pid=$(docker inspect -f '{{.State.Pid}}' "$container") || pid=0
+  if [[ $pid != 0 ]]; then
+    nsenter -t "$pid" -n ip -br addr || true
+    nsenter -t "$pid" -n ip -4 route show table all || true
+    nsenter -t "$pid" -n ip -6 route show table all || true
+    nsenter -t "$pid" -n ss -tuan || true
+    nsenter -t "$pid" -n nft list ruleset || true
+    timeout 8s docker exec "$container" python /spikes/topology_fixture.py diagnose "$role" || true
+  fi
+  peer=check-target
+  if [[ $role == notifications ]]; then peer=provider-target; fi
+  for service in "worker-$role" "$peer" rabbitmq postgres; do
+    id=$("${compose[@]}" ps -a -q "$service") || continue
+    if [[ -n $id ]]; then
+      echo "Diagnostics logs service=$service generation=$id"
+      safe_logs "$id" || true
+    fi
+  done
+}
+
 wait_healthy() {
-  local container=$1 deadline=$((SECONDS+35))
-  until [[ $(docker inspect -f '{{.State.Health.Status}}' "$container") == healthy ]]; do
-    [[ $(docker inspect -f '{{.State.Running}}' "$container") == true ]]
-    (( SECONDS < deadline ))
+  local container=$1 role=$2 deadline=$((SECONDS+35)) observed reason
+  while true; do
+    if ! observed=$(docker inspect -f '{{.State.Status}} {{.State.Health.Status}}' "$container"); then
+      reason=inspect-failed
+      break
+    fi
+    if [[ $observed == 'running healthy' ]]; then return 0; fi
+    if [[ $observed != running\ * ]]; then
+      reason=container-not-running
+      break
+    fi
+    if (( SECONDS >= deadline )); then
+      reason=healthcheck-deadline
+      break
+    fi
     sleep 0.2
   done
+  echo "Worker readiness failed role=$role generation=$container expected='running healthy (Celery ready file and live pidfile process)' observed='${observed:-unavailable}' reason=$reason" >&2
+  worker_snapshot "$container" "$role"
+  return 1
 }
 
 expect_policy_failure() {
@@ -327,8 +378,8 @@ policy "$checks" checks initial ip007-compose-v1 300
 policy "$notifications" notifications initial ip007-compose-v1 300
 wire_gate delete 51 10
 wire_gate delete 52 11
-wait_healthy "$checks"
-wait_healthy "$notifications"
+wait_healthy "$checks" checks
+wait_healthy "$notifications" notifications
 fixture "$checks" coverage checks
 fixture "$notifications" coverage notifications
 for counter in published_v4 published_v6 host_v4 host_v6; do
@@ -336,7 +387,7 @@ for counter in published_v4 published_v6 host_v4 host_v6; do
 done
 for container in "$checks" "$notifications"; do
   pid=$(docker inspect -f '{{.State.Pid}}' "$container")
-  for counter in always_deny default_deny dns; do
+  for counter in always_deny default_deny dns dns_reply; do
     nsenter -t "$pid" -n nft list counter inet ip007_worker "$counter" |
       grep -E 'packets [1-9][0-9]*'
   done
@@ -407,7 +458,7 @@ until generation_gone; do
   sleep 0.05
 done
 wait_log "$target" 'close peer=.* label=old-generation$'
-docker logs "$old"
+safe_logs "$old"
 echo "Confirmed stop of exact generation=$old pidns=$old_namespace and ${#pids[@]} processes"
 
 wire_gate add 51 10
@@ -425,7 +476,7 @@ wire_gate delete 51 10
 printf '%s\n' "$old" > "$IP007_LAB/admission/staged"
 mv "$IP007_LAB/admission/staged" "$IP007_LAB/admission/stopped"
 echo "Released proof generation=$old for successor=$checks"
-wait_healthy "$checks"
+wait_healthy "$checks" checks
 fixture "$checks" send new-generation
 wait_log "$target" 'request label=new-generation'
 wait_log "$checks" 'completed label=new-generation'

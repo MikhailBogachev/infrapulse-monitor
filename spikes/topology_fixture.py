@@ -27,6 +27,7 @@ START_LOCK = Path("/locks") / f"{MONITOR}.start"
 PORT = 443
 DNS = "127.0.0.11"
 CONTROL = (("10.213.50.2", "fd42:213:50::2", 5432), ("10.213.50.3", "fd42:213:50::3", 5672))
+SERVICES = ("postgres", "rabbitmq")
 
 
 def log(message: str) -> None:
@@ -153,6 +154,35 @@ def dns_check(destination: str, name: str, expected: str | None) -> None:
         )
 
 
+def diagnose(role: str) -> None:
+    from infrapulse.config import contains_live_process
+
+    ready = Path("/tmp/infrapulse-worker.ready").is_file()
+    live = contains_live_process(Path("/tmp/infrapulse-worker.pid"))
+    log(
+        f"readiness role={role} generation={socket.gethostname()} "
+        f"expected_revision={POLICY_VERSION} "
+        f"policy={refusal(role) or 'valid'} celery_ready_file={ready} live_pidfile={live}"
+    )
+    for name, (ipv4, ipv6, port) in zip(SERVICES, CONTROL, strict=True):
+        query = dns.message.make_query(f"{name}.", "A")
+        for protocol in (dns.query.udp, dns.query.tcp):
+            try:
+                reply = protocol(query, DNS, timeout=0.6)
+                matched = any(str(record) == ipv4 for rrset in reply.answer for record in rrset)
+                result = f"rcode={dns.rcode.to_text(reply.rcode())} expected_address={matched}"
+            except (OSError, dns.exception.DNSException) as error:
+                result = type(error).__name__
+            log(f"resolver={DNS} protocol={protocol.__name__} service={name} result={result}")
+        for address in (ipv4, ipv6):
+            try:
+                with socket.create_connection((address, port), timeout=0.6):
+                    result = "connected"
+            except OSError as error:
+                result = f"{type(error).__name__} errno={error.errno}"
+            log(f"control service={name} peer={address}:{port} result={result}")
+
+
 def target() -> None:
     stop = shutdown_requested()
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
@@ -257,13 +287,18 @@ def coverage(role: str) -> None:
     if role == "checks":
         refused(("10.213.51.1", "fd42:213:51::1"), 18080)
         refused(("10.213.51.1", "fd42:213:51::1"), 18081)
-    dns_check(DNS, "postgres.", CONTROL[0][0])
+    for name, (ipv4, _, _) in zip(SERVICES, CONTROL, strict=True):
+        dns_check(DNS, f"{name}.", ipv4)
     # Use the embedded resolver's configured, contained upstream. Direct calls
     # to the same test DNS server from the workload are checked over TCP below.
     dns_check(DNS, "probe.test.", "192.0.2.20")
     dns_check(denied[0], "probe.test.", None)
     dns_check(primary[0], "probe.test.", None)
     refused((DNS,), 54)
+    with ExitStack() as stack:
+        for address in ("127.0.0.1", "::1"):
+            listener = bind_listener(stack, address, 0)
+            refused((address,), listener.getsockname()[1])
     # Exact control services remain reachable even with the conflicting target
     # allowance. The same HTTPX call path rejects the protected address before a dial.
     for ipv4, ipv6, service_port in CONTROL:
@@ -297,6 +332,8 @@ if __name__ == "__main__":
         sys.exit(0 if outbound(*args) else 3)
     elif mode == "coverage":
         coverage(*args)
+    elif mode == "diagnose":
+        diagnose(*args)
     elif mode == "held":
         segment = 51 if args[0] == "checks" else 52
         refused((f"10.213.{segment}.2", f"fd42:213:{segment}::2"), PORT)

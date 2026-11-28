@@ -46,6 +46,40 @@ def namespace() -> str:
     return str(path.readlink()) if path.is_symlink() else "unavailable"
 
 
+def process_start(pid: int, proc: Path = Path("/proc")) -> str | None:
+    try:
+        stat = (proc / str(pid) / "stat").read_text()
+    except FileNotFoundError:
+        return None
+    # The comm field may contain spaces and closing parentheses.
+    return stat.rsplit(") ", 1)[1].split()[19]
+
+
+def verify_replacement(
+    old: str,
+    old_pid: int,
+    old_start: str,
+    new: str,
+    pid: int,
+    start: str,
+    proc: Path = Path("/proc"),
+) -> None:
+    assert old != new, f"Docker reused the previous container: {old}"
+    assert process_start(old_pid, proc) != old_start, (
+        f"Previous process still exists: generation={old} pid={old_pid} start={old_start}"
+    )
+    assert process_start(pid, proc) == start, (
+        f"Replacement process changed: generation={new} pid={pid} start={start}"
+    )
+
+
+def policy_ready(generation: str) -> bool:
+    try:
+        return READY.read_text() == generation
+    except FileNotFoundError:
+        return False
+
+
 def bind_listener(stack: ExitStack, address: str, port: int) -> socket.socket:
     deadline = time.monotonic() + 5
     listener = stack.enter_context(socket.socket(family(address)))
@@ -105,6 +139,7 @@ def serve(identity: str, addresses: tuple[str, ...], ports: tuple[int, ...]) -> 
             payload = f"{identity}\n".encode()
             while not stopping():
                 for key, _ in selector.select(timeout=0.1):
+                    assert isinstance(key.fileobj, socket.socket)
                     peer, _ = key.fileobj.accept()
                     with peer:
                         peer.settimeout(0.5)
@@ -192,23 +227,32 @@ if __name__ == "__main__":
     mode, *argv = sys.argv[1:]
     if mode == "watch-startup":
         watch_startup()
+    elif mode == "process-start":
+        print(process_start(int(argv[0])) or "")
+    elif mode == "verify-replacement":
+        old, old_pid, old_start, new, pid, start = argv
+        verify_replacement(old, int(old_pid), old_start, new, int(pid), start)
     elif mode == "wait-startup":
         wait_for(STARTED)
+        assert not READY.exists(), "Readiness marker survived container creation"
     elif mode == "arm":
         ARMED.touch()
         wait_for(BOUND)
     elif mode == "mark-ready":
+        (generation,) = argv
         wait_for(BOUND)
-        READY.touch()
+        staged = READY.with_suffix(".staged")
+        staged.write_text(generation)
+        staged.replace(READY)
         print(f"Policy ready netns={namespace()}", flush=True)
     elif mode == "finish-startup":
         FINISH.touch()
         wait_for(FINISHED)
     elif mode == "check-after-policy":
-        if not READY.exists():
+        run_id, generation = argv
+        if not policy_ready(generation):
             print("Probe workload refused before policy readiness", flush=True)
             sys.exit(3)
-        (run_id,) = argv
         ready(f"{run_id}-allowed", ALLOWED, (TARGET_PORT,))
         ready(f"{run_id}-control", (*CONTROL, "::ffff:10.72.0.2"), (CONTROL_PORT,))
         # The fixture sends directly from the worker without the application's URL policy.

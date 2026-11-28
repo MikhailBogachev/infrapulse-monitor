@@ -31,6 +31,10 @@ image=python:3.13.12-slim-bookworm
 pids=()
 worker=
 worker_pid=
+worker_start=
+worker_namespace=
+worker_digest=
+old=
 run_id=$(cat /proc/sys/kernel/random/uuid)
 echo "Synthetic fixture run=$run_id pid=$$ netns=$(readlink /proc/self/ns/net) mountns=$(readlink /proc/self/ns/mnt)"
 nft --version
@@ -41,7 +45,9 @@ cleanup() {
   if (( status != 0 )); then
     nft list ruleset || true
     if [[ -n $worker ]]; then
-      if [[ -n $worker_pid ]]; then nsenter -t "$worker_pid" -n nft list ruleset || true; fi
+      local pid
+      pid=$(docker inspect -f '{{.State.Pid}}' "$worker") || pid=0
+      if [[ $pid != 0 ]]; then nsenter -t "$pid" -n nft list ruleset || true; fi
       docker logs "$worker" || true
     fi
   fi
@@ -159,6 +165,19 @@ worker_fixture() {
   docker exec "$worker" python /fixture.py "$@"
 }
 
+process_start() {
+  python3 "$fixture" process-start "$1"
+}
+
+live_worker_policy() {
+  [[ $(docker inspect -f '{{.State.Running}} {{.State.Pid}}' "$worker") == "true $worker_pid" ]]
+  [[ $(process_start "$worker_pid") == "$worker_start" ]]
+  [[ $(readlink "/proc/$worker_pid/ns/net") == "$worker_namespace" ]]
+  local digest
+  digest=$(nsenter -t "$worker_pid" -n nft -s list table inet ip007_worker_v1 | sha256sum)
+  [[ $digest == "$worker_digest" ]]
+}
+
 provision() {
   local host=$1
   local status=0
@@ -169,15 +188,31 @@ provision() {
     "$image" python -u /fixture.py watch-startup)
   docker start "$worker" >/dev/null
   worker_pid=$(docker inspect -f '{{.State.Pid}}' "$worker")
+  [[ $worker_pid != 0 ]]
+  worker_start=$(process_start "$worker_pid")
+  [[ -n $worker_start ]]
+  worker_namespace=$(readlink "/proc/$worker_pid/ns/net")
+  if [[ -n $old ]]; then
+    python3 "$fixture" verify-replacement "$old" "$old_pid" "$old_start" \
+      "$worker" "$worker_pid" "$worker_start"
+  fi
   [[ $(docker inspect -f '{{.HostConfig.NetworkMode}}' "$worker") == none ]]
-  [[ $(readlink "/proc/$worker_pid/ns/net") != $(readlink /proc/self/ns/net) ]]
+  [[ $(docker inspect -f '{{.HostConfig.PidMode}}' "$worker") == '' ]]
+  [[ $worker_namespace != "$(readlink /proc/self/ns/net)" ]]
+  [[ $worker_namespace != "$(readlink /proc/1/ns/net)" ]]
   [[ $(nsenter -t "$worker_pid" -n ip -o link show | wc -l) == 1 ]]
   nsenter -t "$worker_pid" -n sysctl -qw net.ipv6.conf.all.disable_ipv6=0
   worker_fixture wait-startup
   worker_fixture disconnected
-  worker_fixture check-after-policy "$run_id" || status=$?
+  worker_fixture check-after-policy "$run_id" "$worker" || status=$?
   [[ $status == 3 ]]
-  echo "Container $worker starts disconnected pid=$worker_pid netns=$(readlink "/proc/$worker_pid/ns/net")"
+  local tables
+  tables=$(nsenter -t "$worker_pid" -n nft list tables)
+  if grep -Fxq 'table inet ip007_worker_v1' <<<"$tables"; then
+    echo "Worker policy survived container creation: generation=$worker" >&2
+    return 1
+  fi
+  echo "Container $worker starts disconnected pid=$worker_pid start=$worker_start netns=$worker_namespace sandbox=$(docker inspect -f '{{.NetworkSettings.SandboxKey}}' "$worker")"
 
   # The host controls this namespace; the test process has no network capabilities.
   apply_ruleset nsenter -t "$worker_pid" -n <<'RULES'
@@ -202,13 +237,15 @@ table inet ip007_worker_v1 {
 }
 RULES
   nsenter -t "$worker_pid" -n nft list chain inet ip007_worker_v1 out
+  worker_digest=$(nsenter -t "$worker_pid" -n nft -s list table inet ip007_worker_v1 | sha256sum)
   worker_fixture arm
   worker_fixture sealed
   attach "$worker_pid" 70 "$host"
   nsenter -t "$worker_pid" -n ip -br addr show edge
   [[ $(nsenter -t "$worker_pid" -n ip -4 -o addr show dev edge) == *"10.70.0.$host/24"* ]]
   [[ $(nsenter -t "$worker_pid" -n ip -6 -o addr show dev edge) == *"fd00:70::$host/64"* ]]
-  worker_fixture mark-ready
+  live_worker_policy
+  worker_fixture mark-ready "$worker"
   echo "Policy ready generation=$worker version=ip007_worker_v1"
 }
 
@@ -222,7 +259,8 @@ python3 "$fixture" ready "$run_id-gateway" 10.70.0.1 fd00:70::1 18080
 
 coverage() {
   local counter
-  worker_fixture check-after-policy "$run_id"
+  live_worker_policy
+  worker_fixture check-after-policy "$run_id" "$worker"
   for counter in local_drops denied_v4 denied_v6 default_drops; do
     nsenter -t "$worker_pid" -n nft list counter inet ip007_worker_v1 "$counter" |
       grep -E 'packets [1-9][0-9]*'
@@ -240,25 +278,35 @@ for counter in host_drops translated_v4 translated_v6; do
 done
 
 old=$worker
-old_namespace=$(readlink "/proc/$worker_pid/ns/net")
+old_pid=$worker_pid
+old_start=$worker_start
+live_worker_policy
 docker stop -t 1 "$old" >/dev/null
-echo "Stopped generation=$old netns=$old_namespace exit=$(docker wait "$old")"
+code=$(docker wait "$old")
+[[ $code == 0 ]]
 [[ $(docker inspect -f '{{.State.Status}} {{.State.Pid}} {{.State.ExitCode}}' "$old") == 'exited 0 0' ]]
+echo "Stopped generation=$old pid=$old_pid start=$old_start exit=$code"
 docker logs --tail 2 "$old"
 docker rm "$old" >/dev/null
 worker=
-# Kernel teardown removes both ends when the removed Docker namespace is released.
+# The kernel can recycle both IDs after teardown. Keep no namespace FD or mount
+# alive here, and require the previous process and veth to be gone before create.
 deadline=$((SECONDS+5))
-while ip link show dev worker70 >/dev/null 2>&1; do
+while true; do
+  current_start=$(process_start "$old_pid")
+  links=$(ip -o link show)
+  if [[ $current_start != "$old_start" ]] &&
+     ! grep -Eq '^[0-9]+: worker70(@[^:]+)?:' <<<"$links"; then
+    break
+  fi
   if (( SECONDS >= deadline )); then
-    echo "The old worker attachment survived removal." >&2
+    echo "The old process or its attachment survived removal: generation=$old pid=$old_pid start=$old_start" >&2
     exit 1
   fi
   sleep 0.05
 done
 provision 3
 python3 "$fixture" ready "$run_id-gateway" 10.70.0.1 fd00:70::1 18080
-[[ $worker != "$old" && $(readlink "/proc/$worker_pid/ns/net") != "$old_namespace" ]]
 coverage
 for counter in host_drops translated_v4 translated_v6; do
   nft list counter inet ip007_gateway "$counter" | grep -E 'packets [1-9][0-9]*'
