@@ -9,8 +9,8 @@ Eight-week planning estimate for InfraPulse alone, not a delivery guarantee. Wee
 | 01 Product Discovery | 1 | COMPLETED AND APPROVED. IP-003 and IP-004 delivered and finalized the product baseline. |
 | 02 System Design | 1–2 | COMPLETED AND APPROVED. IP-005 delivers the approved architecture, ERD, API, queue semantics, threat model and ADRs. |
 | 03 UI/UX | 2 | COMPLETED AND APPROVED. The owner accepted the design documentation and local interactive HTML prototype in [IP-006 Final Acceptance](#ip-006-uiux-design). |
-| 04 Development Setup | 2 | IN PROGRESS. Repository, locked dependencies, [GitHub Actions CI](decision-register.md#d-010), Compose, verified toolchain and [six mandatory technical spikes](../architecture/system-architecture.md#verification-gates) |
-| 05 Backend | 3–6 | Tested vertical slices, MVP then beta scope |
+| 04 Development Setup | 2 | COMPLETED AND APPROVED. Repository, locked dependencies, [GitHub Actions CI](decision-register.md#d-010), Compose, verified toolchain and [six mandatory technical spikes](../architecture/system-architecture.md#verification-gates) |
+| 05 Backend | 3–6 | PENDING. Tested vertical slices, MVP then beta scope |
 | 06 Frontend | 4–6 | Usable UI integrated with API |
 | 07 QA | 6–7 | Security, integration, end-to-end, load and retention evidence |
 | 08 Deployment | 7–8 | Safe demo, operational runbook, recovery verification |
@@ -24,7 +24,7 @@ IP-003 is **COMPLETED AND MERGED**, including its review corrections.
 
 ## IP-005 final acceptance
 
-IP-004 is **COMPLETED AND MERGED**. [Q-01–Q-15](decision-register.md#ip-004-product-decisions) form the approved product baseline. IP-005 and Stage 02 are **COMPLETED AND APPROVED**. The owner accepted the [system design](../architecture/system-architecture.md), [AD-013–AD-016](decision-register.md#ad-013) and [PD-016](decision-register.md#pd-016) in IP-005 Final Acceptance. The [verification gates](../architecture/system-architecture.md#verification-gates) retain the pending Stage 04 spikes and Stage 07 load and retention checks.
+IP-004 is **COMPLETED AND MERGED**. [Q-01–Q-15](decision-register.md#ip-004-product-decisions) form the approved product baseline. IP-005 and Stage 02 are **COMPLETED AND APPROVED**. The owner accepted the [system design](../architecture/system-architecture.md), [AD-013–AD-016](decision-register.md#ad-013) and [PD-016](decision-register.md#pd-016) in IP-005 Final Acceptance. The [verification gates](../architecture/system-architecture.md#verification-gates) track the Stage 04 spikes and Stage 07 load and retention checks.
 
 ## IP-006 UI/UX design
 
@@ -42,7 +42,11 @@ Codex verified status consistency, ran `git diff HEAD --check` and checked white
 
 Full WCAG 2.2 AA conformance remains unverified. Apply the [accessibility verification checklist](../design/accessibility.md#verification-checklist) to the production frontend, including browser reflow, keyboard interaction and assistive technology checks.
 
-Stage 04 is **IN PROGRESS** under **IP-007 — Development Environment Setup**. The [setup guide](../development/setup.md) documents the foundation. The [spike reports](../development/technical-spikes.md) record current evidence for the six mandatory [verification gates](../architecture/system-architecture.md#verification-gates). Load and retention verification remains in Stage 07.
+## IP-007 development environment
+
+IP-007 and Stage 04 are **COMPLETED AND APPROVED**. [Final Owner Acceptance](decision-register.md#ip-007-verification) records the 2026-11-28 approval and verification results. The [setup guide](../development/setup.md) documents the development foundation.
+
+Stage 05 is **PENDING** and requires explicit owner authorization. Production egress enforcement and the worker execution guard still require implementation and verification. Load and retention verification remains in Stage 07.
 
 ## Release gates
 

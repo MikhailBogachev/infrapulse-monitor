@@ -72,7 +72,7 @@ make up
 
 ## CI
 
-[GitHub Actions](../../.github/workflows/ci.yml) runs on pull requests and pushes to main with read-only repository permissions and SHA-pinned actions. The backend and frontend jobs verify locked installations, lint, types and tests. Integration validates Compose, builds and starts the stack, runs migrations, checks browser and broker integration and runs the disposable PostgreSQL, RabbitMQ, HTTPX and execution-guard experiments. The Linux egress job runs the synthetic host-routing harness twice in fresh private namespaces. The separate Linux Compose topology job exercises the approved bridge layout and prefork worker with controlled targets. See [spike commands and evidence](technical-spikes.md#5-ipv4ipv6-egress-enforcement). GitHub run evidence and branch protection are reviewed after the owner pushes the branch.
+[GitHub Actions](../../.github/workflows/ci.yml) runs on pull requests and pushes to main with read-only repository permissions and SHA-pinned actions. The backend and frontend jobs verify locked installations, lint, types and tests. Integration validates Compose, builds and starts the stack, runs migrations, checks browser and broker integration and runs the disposable PostgreSQL, RabbitMQ, HTTPX and execution-guard experiments. The Linux egress job runs the synthetic host-routing harness twice in fresh private namespaces. The separate Linux Compose topology job exercises the approved bridge layout and prefork worker with controlled targets. All five jobs passed in the [approved CI run](technical-spikes.md#approved-ci-evidence). The owner verified [main branch protection](workflow.md#main-branch-protection).
 
 ## Troubleshooting
 

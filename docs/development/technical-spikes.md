@@ -1,8 +1,24 @@
 # IP-007 technical spike reports
 
-Stage 04 is **IN PROGRESS**. The headings follow the six [architecture verification gates](../architecture/system-architecture.md#verification-gates). Each result applies to the stated experiment and platform. All experiments use synthetic endpoints, data and credentials. The spike image and Compose profile are separate from the backend runtime image.
+IP-007 and Stage 04 are **COMPLETED AND APPROVED**. Stage 05 is **PENDING**. All six [architecture verification gates](../architecture/system-architecture.md#verification-gates) passed in their documented experiment environments. All experiments use synthetic endpoints, data and credentials. The spike image and Compose profile are separate from the backend runtime image.
 
-The owner reported that [GitHub Actions run 45990753293](https://github.com/MikhailBogachev/infrapulse-monitor/actions/runs/45990753293) passed Backend, Frontend and Integration. The Linux egress fixture failed during gateway ruleset parsing. The spike results below record the evidence supplied for that run.
+## Approved CI evidence
+
+**Mandatory CI verification — PASS. Runtime evidence review — PASS.** The owner accepted the Spike 5 and Spike 6 runtime evidence. [GitHub Actions run 46114848041](https://github.com/MikhailBogachev/infrapulse-monitor/actions/runs/46114848041) concluded with `success` on 2026-11-28. The native Linux runner used Ubuntu 24.04.5 LTS. The PR head was `194143150dacfb0b847c7fb4da6367d8c32fd5c5`. CI checked out the PR merge SHA `85397394e68e35644badbaec7419731181d9365a`.
+
+| Job | Result |
+|---|---|
+| [Backend · 140886238998](https://github.com/MikhailBogachev/infrapulse-monitor/actions/runs/46114848041/job/140886238998) | PASS |
+| [Frontend · 140886238951](https://github.com/MikhailBogachev/infrapulse-monitor/actions/runs/46114848041/job/140886238951) | PASS |
+| [Integration · 140886238908](https://github.com/MikhailBogachev/infrapulse-monitor/actions/runs/46114848041/job/140886238908) | PASS |
+| [Linux Compose Topology · 140886238735](https://github.com/MikhailBogachev/infrapulse-monitor/actions/runs/46114848041/job/140886238735) | PASS |
+| [Linux Egress Fixture · 140886238874](https://github.com/MikhailBogachev/infrapulse-monitor/actions/runs/46114848041/job/140886238874) | PASS |
+
+**Evidence artifacts.** [linux-egress-spike · 15250079409](https://github.com/MikhailBogachev/infrapulse-monitor/actions/runs/46114848041/artifacts/15250079409) and [linux-compose-topology · 15251049015](https://github.com/MikhailBogachev/infrapulse-monitor/actions/runs/46114848041/artifacts/15251049015).
+
+The approved run applies to the PR head recorded above. CI verification for the final acceptance commit is pending.
+
+**Non-blocking CI technical debt.** The runner warned that `actions/upload-artifact` targets the deprecated Node.js 20 runtime and ran the action on Node.js 24. Both artifacts uploaded successfully. Updating the action is deferred.
 
 ## Reproduction environment
 
@@ -24,7 +40,7 @@ make install config up spike-runner
 
 **Observed.** Locked installation, binary wheel provisioning, static checks, unit tests and Linux arm64 container builds and an emulated linux/amd64 backend build completed. Nginx, PostgreSQL, RabbitMQ and Redis became healthy. The migration initialized and updated the schema with its dedicated role. Readiness verified the matching revision and Redis. Synthetic messages exercised a real DB session in each prefork lane. A disposable PostgreSQL Testcontainers run confirmed both driver paths and async rollback. The Linux arm64 runtime used binary libpq 18.0 and loaded its system CA trust store. The emulated amd64 runtime also loaded the binary driver and CA trust store and executed synchronous and asynchronous PostgreSQL queries. An injected Beat process exit stopped the scheduler with exit code 1. Starting the scheduler again restored health. The fixture verified Redis atomic commands and JWT, Argon2id and AES-GCM round trips. Using SQLAlchemy's asyncio extra fixed a missing greenlet dependency on macOS. Vitest and the local and container SPA build passed. Chromium on macOS hit a Mach service permission failure. The Playwright Chromium smoke subsequently passed in a Linux arm64 fixture on the private Compose ingress bridge.
 
-**Result — PASS.** The local toolchain, Linux containers and synthetic compatibility checks passed on the tested matrix. Actual GitHub CI execution under AC-057 and the native Linux host policy remain separate acceptance evidence. Initial migration verification covers the foundation revision.
+**Result — PASS.** The local toolchain, Linux containers and synthetic compatibility checks passed on the tested matrix. The [approved CI run](#approved-ci-evidence) records GitHub Actions execution for AC-057. Initial migration verification covers the foundation revision.
 
 ## 2. PostgreSQL DDL and Partitioning
 
@@ -56,7 +72,7 @@ make install config up spike-runner
 
 **Targeted follow-up.** `test_denied_direct_and_redirect_targets` passed in the private dual-stack Compose fixture. It exercised private literals denied by default, protected-address conflicts, mapped IPv4 literals, and IPv4/IPv6 redirects to a separate denied TLS listener. The initial request used one pinned dial and the denied listener received no HTTP request. Classifier-only conflicts additionally covered unspecified, multicast, broadcast, IPv6 link-local and mapped metadata addresses. The earlier retry, reconnect, pooling, proxy and valid direct-IP evidence was retained.
 
-**Result — PASS.** The candidate relies on pinned private HTTPX/httpcore interfaces. Re-run the experiment on upgrades. End-to-end guard integration, the full production URL policy and post-routing Linux enforcement remain distinct gates.
+**Result — PASS.** The candidate relies on pinned private HTTPX/httpcore interfaces. Re-run the experiment on upgrades. The full production URL policy and its integration with the production execution guard and Linux enforcement remain implementation and verification work.
 
 ## 5. IPv4/IPv6 Egress Enforcement
 
@@ -95,8 +111,28 @@ sudo make spike-egress
 
 **Control-plane boundary — COMPLIANT with the approved design.** [AD-015](../project/decision-register.md#ad-015) requires application destination verification and host-managed egress restrictions. The [deployment design](../architecture/deployment-design.md#restricted-egress) explicitly permits exact DB and broker peers and ports and the designated resolver as worker capabilities. [NFR-010](../product/srs.md#nfr-010), [AC-051](../product/acceptance-criteria.md#ac-051) and [AC-052](../product/acceptance-criteria.md#ac-052) require every HTTP check path to reject these protected destinations even with a conflicting allowance and to demonstrate the effective destination of every actual target connection. The approved boundary uses application policy to distinguish target dials from legitimate use of the exact service tuples. Independent network isolation of HTTP check operations from those tuples would require an additional approved architecture decision.
 
-**Result — INCOMPLETE.** Native Linux CI passed the synthetic fixture. The corrected Compose Docker DNAT path and the complete supported topology still require native Linux CI. Docker Desktop runtime checks are development evidence.
+**Approved native Linux Synthetic Egress Fixture — PASS.** Two consecutive invocations each exercised two worker generations. All four generations exited with code 0. The runs verified IPv4, IPv6 and IPv4-mapped IPv6 filtering, default-deny and always-deny, loopback and host access blocking, post-DNAT filtering, narrow service exceptions, fail-closed startup and worker recreation. The fixture handled namespace identifier reuse and confirmed listener lifecycle and repeatability. See the [Linux Egress Fixture job](https://github.com/MikhailBogachev/infrapulse-monitor/actions/runs/46114848041/job/140886238874).
 
+| Run | Generation | Startup refusal sweeps | After attachment |
+|---|---|---:|---:|
+| 1 | 1 | 58 | 17 |
+| 1 | 2 | 61 | 18 |
+| 2 | 1 | 59 | 17 |
+| 2 | 2 | 61 | 18 |
+| **Total** | | **239** | **70** |
+
+**Approved native Linux Compose Topology — PASS.** The job verified startup quarantine, refusal of missing, stale and drifted policy, live policy verification, and worker readiness. It exercised PostgreSQL and RabbitMQ over IPv4 and IPv6, permitted IPv4, IPv6 and mapped targets, Docker resolver UDP and TCP, third-party DNS denial, loopback isolation, provider-only HTTPS, HTTP target rejection before dial, host and published-port blocking, and worker recreation. See the [Linux Compose Topology job](https://github.com/MikhailBogachev/infrapulse-monitor/actions/runs/46114848041/job/140886238735).
+
+The worker probes to the host listener and published port were blocked at host INPUT. The separate routed-veth client exercised actual Docker DNAT. Its allowed control reached Nginx over both address families. Each forbidden SYN crossed the ingress observation point and was dropped in FORWARD after translation. The Nginx SYN counters stayed at one after the forbidden probes.
+
+| Path | IPv4 counter | IPv6 counter | Packets |
+|---|---|---|---|
+| Routed-veth ingress before DNAT | `ingress_v4` | `ingress_v6` | 0 → 1 |
+| Routed-veth drop after DNAT | `published_v4` | `published_v6` | 0 → 1 |
+| Nginx SYNs before control, after control and after forbidden probe | `received_v4` | `received_v6` | 0 → 1 → 1 |
+| Worker host-listener and published-port denials at INPUT | `host_v4` | `host_v6` | 0 → 1 → 2 |
+
+**Result — PASS.** The synthetic fixture and supported Compose topology passed on native Linux. Production host policy provisioning and end-to-end egress verification for supported application paths remain required under AD-013 and AD-015.
 
 ## 6. Worker Execution Guard
 
@@ -129,4 +165,16 @@ The maximum was **one active socket** for the tested monitor over all eight conn
 
 **Isolated Docker Desktop replay.** The Compose guard captured four processes, including the lock owner, verified exit status 137 and removal of the old cgroup, and observed the old socket close. It rejected stale and missing policy and missing and mismatched generation proof without a dial. After host admission, the successor completed its check. The API and both generations reported matching execution and start lock identities. The old target connection closed before the successor connected.
 
-**Result — INCOMPLETE.** Native Linux integration passed in run 46110368724. The supported Compose job reached coverage, then stopped on the post-DNAT counter assertion before worker recreation. Native Linux CI still needs to verify the full Compose lifecycle, including cgroup v2 generation exit, stable lock identity, no overlap and refusal before policy readiness. Stage 04 remains in progress pending those results and owner approval.
+**Approved native Linux Compose lifecycle — PASS.** The host confirmed that the exact previous generation `77c30176e9c4` (host PID `6325`) and all five recorded processes had stopped. Its cgroup v2 was removed. The successor was `9c4b764f468c` (host PID `10428`). Both shared lock identities were preserved (execution `66305:4791818`, start `66305:4791819`). The successor refused missing and stale policy and missing and incorrect termination proof. It accepted the matching generation proof and completed a new outbound check. See the [Linux Compose Topology job](https://github.com/MikhailBogachev/infrapulse-monitor/actions/runs/46114848041/job/140886238735).
+
+| TLS fixture event | Monotonic time (ns) |
+|---|---:|
+| Old accept | 148862778372 |
+| Old close | 149621708396 |
+| New dial | 167776695926 |
+| New accept | 167778710513 |
+| New close | 167781339390 |
+
+The old connection closed before the new dial. The time from old close to new accept was approximately 18.157 seconds. These two outbound connections did not overlap.
+
+**Result — PASS.** The approved run passed the integration and native Linux Compose lifecycle checks. Production implementation and verification of the worker execution guard, including trusted host-managed termination proof and integration with the production transport and policy, remain required under AD-014.

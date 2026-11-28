@@ -257,4 +257,4 @@ The [Decision Register](../project/decision-register.md#ip-004-product-decisions
 
 ## Stage 04 verification evidence
 
-IP-007 records integration evidence for F-012, NFR-013–NFR-015 and AC-055–AC-057 in the [development setup](../development/setup.md) and [technical spike reports](../development/technical-spikes.md). The reports also link the isolation, retention and execution criteria exercised by the spike fixtures. Stage 04 and native Linux verification remain open.
+IP-007 records integration evidence for F-012, NFR-013–NFR-015 and AC-055–AC-057 in the [development setup](../development/setup.md) and [technical spike reports](../development/technical-spikes.md). The reports also link the isolation, retention and execution criteria exercised by the spike fixtures. Mandatory CI verification and native Linux runtime evidence review passed. Stage 04 is **COMPLETED AND APPROVED**. See [IP-007 Final Owner Acceptance](../project/decision-register.md#ip-007-verification).

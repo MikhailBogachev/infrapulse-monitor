@@ -36,7 +36,7 @@ The approved technology baseline includes FastAPI, PostgreSQL, RabbitMQ, Celery,
 
 ## Stage 02 design and verification
 
-The owner approved the [architecture decisions](decision-register.md#approved-stage-02-architecture-decisions), the [technology stack](../architecture/technology-stack.md) and the [system design](../architecture/system-architecture.md) in IP-005. Stage 04 pins exact dependency versions and runs the pending technical spikes. Stage 07 verifies load targets and retention. See the [verification gates](../architecture/system-architecture.md#verification-gates).
+The owner approved the [architecture decisions](decision-register.md#approved-stage-02-architecture-decisions), the [technology stack](../architecture/technology-stack.md) and the [system design](../architecture/system-architecture.md) in IP-005. Stage 04 pinned exact dependency versions and all six mandatory technical spikes passed. The owner approved Stage 04 in [IP-007 Final Owner Acceptance](decision-register.md#ip-007-verification). Stage 07 verifies load targets and retention. See the [verification gates](../architecture/system-architecture.md#verification-gates).
 
 ## Success targets (not measured results)
 - 1,000 active monitors at 60-second intervals; approximately 16.7 checks/s on average.

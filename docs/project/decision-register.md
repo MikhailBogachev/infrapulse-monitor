@@ -33,7 +33,7 @@ Under D-009, repository documentation is the primary source of project context. 
 
 **Scope.** Continuous integration, automated quality checks and tests within approved MVP scope, and observable GitHub Actions execution. The current technology dispositions are in the [approved stack](../architecture/technology-stack.md).
 
-**Deferred implementation details.** Workflow structure, job decomposition, triggers, runner operating systems and architectures, dependency caching, matrices, branch protection, required check names, artifact retention, deployment workflows, release automation, and versions of actions and quality or test tools remain unapproved. The detailed Stage 07 measurement protocol is deferred under [Q-11](../product/prd.md#q-11).
+**Implementation follow-up.** D-010 deferred workflow structure, job decomposition, triggers, runner operating systems and architectures, dependency caching, matrices, branch protection, required check names, artifact retention, deployment workflows, release automation, and versions of actions and quality or test tools. [IP-007 Final Owner Acceptance](#ip-007-verification) records the approved Stage 04 setup and the verified branch protection. The detailed Stage 07 measurement protocol is deferred under [Q-11](../product/prd.md#q-11).
 
 **Related decisions and requirements.** [D-005](#d-005), [D-007](#d-007), [F-012](../product/prd.md#f-012), [NFR-015](../product/srs.md#nfr-015), [AC-057](../product/acceptance-criteria.md#ac-057).
 
@@ -134,4 +134,14 @@ See the [design system](../design/design-system.md), [MVP screen specifications]
 
 ## IP-007 verification
 
-Stage 04 is in progress. The [technical spike reports](../development/technical-spikes.md) record verification evidence and open gates for the approved decisions.
+IP-007 and Stage 04 are **COMPLETED AND APPROVED**. Stage 05 is **PENDING** and requires explicit owner authorization. [Draft PR #7](https://github.com/MikhailBogachev/infrapulse-monitor/pull/7) remains open.
+
+| Gate | Status | Evidence |
+|---|---|---|
+| Technical Spikes 1–6 | PASS | [Stage 04 verification gates](../architecture/system-architecture.md#verification-gates) |
+| Mandatory CI verification | PASS | [Approved CI run 46114848041](../development/technical-spikes.md#approved-ci-evidence) |
+| Runtime Evidence Review | PASS | [Accepted native Linux evidence](../development/technical-spikes.md#approved-ci-evidence) |
+| Branch Protection | PASS | [Owner-verified GitHub Ruleset](../development/workflow.md#main-branch-protection) |
+| Owner Approval | APPROVED | 2026-11-28 |
+
+The owner reviewed the final Git diff, reported no blocking findings and accepted all mandatory technical spikes, mandatory CI verification, the runtime evidence review, the finalized documentation and the GitHub Ruleset configuration.

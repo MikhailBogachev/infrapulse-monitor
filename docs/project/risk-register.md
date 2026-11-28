@@ -6,8 +6,8 @@ All risks initially open. H = high, M = medium, L = low. Owner reviews at each s
 | ID | Risk | Likelihood / impact | Mitigation / verification | Responsible role |
 |---|---|---|---|---|
 | R-01 | Scope creep | H/H | Release boundaries; change approval | Product owner |
-| R-02 | SSRF / network abuse through internal allowlisting, supported outbound paths or additional monitor types | H/H | The pinned HTTPX candidate passed controlled checks. In run 46110368724, both native Linux Synthetic Egress Fixture invocations passed, including replacement generations. The native Linux Compose job verified worker readiness, dual-stack coverage, DNS and host listener isolation, then stopped at zero publication FORWARD counters. The [corrected Docker DNAT path](../development/technical-spikes.md#5-ipv4ipv6-egress-enforcement) still requires native Linux CI evidence. | Backend |
-| R-03 | Duplicate tasks or manual and scheduled overlap | H/H | The Celery TLS fixture observed at most one active socket after lease expiry, DB disconnect, child death and container replacement. Run 46110368724 passed integration, then the separate Compose job stopped at the publication assertion before worker recreation. The [full native Linux Compose lifecycle](../development/technical-spikes.md#6-worker-execution-guard) still needs evidence for stable lock identity, exact cgroup exit and policy readiness. | Backend |
+| R-02 | SSRF / network abuse through internal allowlisting, supported outbound paths or additional monitor types | H/H | Stage 04 mitigation verified in controlled HTTPX, native Linux synthetic and Compose fixtures, including dual-stack filtering, worker INPUT and Docker post-DNAT filtering. Implement and verify production destination policy and host-managed egress on all supported outbound paths. See [Spike 5](../development/technical-spikes.md#5-ipv4ipv6-egress-enforcement). | Backend |
+| R-03 | Duplicate tasks or manual and scheduled overlap | H/H | Stage 04 mitigation verified in the Celery TLS fixture and native Linux Compose lifecycle, including exact prior-generation exit, stable lock identity, policy and proof refusal, and no overlap between the recorded connections. Implement and verify the production worker execution guard and trusted host-managed termination proof. See [Spike 6](../development/technical-spikes.md#6-worker-execution-guard). | Backend |
 | R-04 | Lost tasks | M/H | Verify confirms, mandatory routing, durable reconciliation and late acknowledgement with controlled broker failure. | Backend |
 | R-05 | False incidents | H/M | Failure/recovery thresholds; ordered state transitions | Backend |
 | R-06 | History growth | H/H | Verify six-hour partitions, ledger/index overhead, physical cleanup and representative query plans. | Backend |
@@ -17,7 +17,7 @@ All risks initially open. H = high, M = medium, L = low. Owner reviews at each s
 | R-10 | Naming conflict | H/M | Working name only; clearance or rename before public branding | Owner |
 | R-11 | Tenant data leakage | M/H | Workspace-scoped authorization and cross-tenant tests | Backend |
 | R-12 | Public demo abuse or data leakage | H/H | Controlled synthetic targets, bounded resources, isolation from real and foreign session data, simulated notification behavior and verified cleanup. | Operations |
-| R-13 | Dependency/concurrency mismatch | M/H | Validate Python and Celery execution model; pin versions | Backend |
+| R-13 | Dependency/concurrency mismatch | M/H | The locked Stage 04 stack and Celery prefork execution model passed on the tested matrix. Revalidate with dependency or concurrency changes. See [Spike 1](../development/technical-spikes.md#1-technology-stack-compatibility). | Backend |
 | R-14 | Credential exposure | M/H | Secret handling, redaction, secret scanning | Operations |
 | R-15 | Abuse of configurable registration or initial setup | M/H | Disable public registration by default after setup. Verify operator control, one-time bootstrap eligibility and rate policy. | Backend |
 | R-16 | Check bursts from Run Check Now | M/H | Verify the per-monitor 30-second acceptance limit and prevention of overlap. Test ordinary traffic and scheduling under controlled concurrent requests. | Backend |
@@ -25,4 +25,4 @@ All risks initially open. H = high, M = medium, L = low. Owner reviews at each s
 
 All risks remain open. Roles describe responsibilities of the solo developer. Review residual risk and evidence before release.
 
-Stage 04 experiment evidence and residual risks for R-02, R-03, R-04, R-06, R-13 and R-14 are tracked in the [IP-007 technical spike reports](../development/technical-spikes.md).
+The owner accepted the Stage 04 evidence, closing the native Linux fixture verification gaps for R-02 and R-03. R-02 remains open pending implementation and verification of production egress enforcement. R-03 remains open pending implementation and verification of the production worker execution guard. The [IP-007 technical spike reports](../development/technical-spikes.md) track experiment evidence and residual risks for R-02, R-03, R-04, R-06, R-13 and R-14.
